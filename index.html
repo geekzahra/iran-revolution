@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geography of Absence | Iran 2026 Memorial</title>
+  <meta name="description"
+    content="An immersive memorial for those lost in the 2026 Iran massacres. A wounded land that never heals.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+
+<body>
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-line"></div>
+    </div>
+  </div>
+
+  <!-- Main Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Intro Text -->
+  <div id="intro-text">
+    <h1>Geography of Absence</h1>
+    <p>Each tulip, a life taken</p>
+    <p class="subtitle">Iran, January 2026</p>
+  </div>
+
+  <!-- Controls Hint -->
+  <div id="controls-hint">
+    <span>Drag to rotate</span>
+    <span class="divider">•</span>
+    <span>Scroll to zoom</span>
+    <span class="divider">•</span>
+    <span>Click a tulip to remember</span>
+  </div>
+
+  <!-- Info Button -->
+  <button id="info-button" aria-label="Information">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+  </button>
+
+  <!-- Info Panel -->
+  <div id="info-panel" class="hidden">
+    <button id="close-panel" aria-label="Close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+    <div class="panel-content">
+      <h2>The 2026 Iran Massacres</h2>
+      <p class="panel-date">December 2025 – January 2026</p>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <span class="stat-number" data-count="18000">0</span>
+          <span class="stat-label">Estimated Deaths</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-count="330000">0</span>
+          <span class="stat-label">Injured</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-count="50000">0</span>
+          <span class="stat-label">Detained</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-count="180">0</span>
+          <span class="stat-label">Cities Affected</span>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>What Happened</h3>
+        <p>In late December 2025, widespread protests erupted across Iran following a severe economic crisis. The
+          government responded with extreme force, implementing a near-total internet blackout on January 8, 2026.</p>
+        <p>Security forces, including the IRGC and Basij, were ordered to "shoot to kill." Reports document the use of
+          heavy machine guns against crowds, hospital attacks, and widespread torture.</p>
+      </div>
+
+      <div class="panel-section">
+        <h3>The Red Tulip</h3>
+        <p>In Persian culture, the red tulip (لاله) symbolizes martyrdom and the blood of those who fell. Each tulip on
+          this map represents one identified victim—placed where they took their last breath.</p>
+        <p>We have identified 120+ victims. The true number is far greater. Due to the information blackout, many will
+          never be named.</p>
+      </div>
+
+      <div class="panel-section sources">
+        <h3>Sources</h3>
+        <ul>
+          <li>Human Rights Activists News Agency (HRANA)</li>
+          <li>Wikipedia: کشتارهای دی ۱۴۰۴ ایران</li>
+          <li>The Sunday Times</li>
+          <li>Iran International</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Victim Info Popup -->
+  <div id="victim-popup" class="hidden">
+    <div class="victim-popup-content">
+      <div class="tulip-icon">🌷</div>
+      <h3 id="victim-name"></h3>
+      <p id="victim-name-en" class="victim-name-en"></p>
+      <div class="victim-details">
+        <p id="victim-city"></p>
+        <p id="victim-age"></p>
+        <p id="victim-date"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element -->
+  <audio id="ambient-audio" loop preload="auto">
+    <source src="/audio/ambient.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Sound Toggle -->
+  <button id="sound-toggle" aria-label="Toggle sound">
+    <svg id="sound-on" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+    <svg id="sound-off" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <line x1="23" y1="9" x2="17" y2="15" />
+      <line x1="17" y1="9" x2="23" y2="15" />
+    </svg>
+  </button>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

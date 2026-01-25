@@ -870,8 +870,8 @@ body {
 .names-row-content {
   display: flex;
   align-items: center;
-  gap: 1.6em;
-  /* Reduced gap to 40% of previous value */
+  gap: 0.96em;
+  /* Reduced gap to 60% of previous value */
   animation: scroll-names linear infinite;
   /* GPU acceleration */
   will-change: transform;
@@ -909,8 +909,38 @@ body {
 }
 
 .names-row.layer-3 .names-row-content span {
-  color: rgba(220, 220, 230, 0.078);
+  color: rgba(220, 220, 230, 0.12);
   font-size: 11px;
+}
+
+/* Vertical Gradient Themes (Green, White, Red) */
+/* Colors are kept subtle and desaturated for the phantom effect */
+
+/* Top 1/3: Light Green */
+.names-row.theme-green span {
+  color: rgba(30, 180, 50, 0.15) !important;
+}
+
+.names-row.theme-green.layer-2 span {
+  color: rgba(40, 200, 60, 0.22) !important;
+}
+
+/* Middle 1/3: White (Current) */
+.names-row.theme-white span {
+  color: rgba(220, 220, 230, 0.1) !important;
+}
+
+.names-row.theme-white.layer-2 span {
+  color: rgba(220, 220, 230, 0.18) !important;
+}
+
+/* Bottom 1/3: Light Red */
+.names-row.theme-red span {
+  color: rgba(230, 100, 100, 0.15) !important;
+}
+
+.names-row.theme-red.layer-2 span {
+  color: rgba(250, 120, 120, 0.18) !important;
 }
 
 /* Glow effect when tulip is clicked */

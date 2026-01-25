@@ -1039,8 +1039,8 @@ let allVictimsData = []; // Store victims data for language switching
  * Configuration for names background
  */
 const NAMES_CONFIG = {
-    // Number of rows - reduced on mobile for performance
-    rows: window.innerWidth < 768 ? 12 : 18,
+    // Number of rows - adjusted to be 20% farther apart vertically
+    rows: window.innerWidth < 768 ? 20 : 33,
     // Speed range in seconds (slower = more readable)
     // Increased significantly for a very slow, haunting movement
     speedMin: 1920,
@@ -1077,11 +1077,20 @@ function initNamesBackground(victimsList) {
     const rowSpacing = viewportHeight / NAMES_CONFIG.rows;
 
     for (let i = 0; i < NAMES_CONFIG.rows; i++) {
+        // Determine color theme based on vertical position (1/3 each)
+        let theme = 'theme-white';
+        if (i < NAMES_CONFIG.rows / 3) {
+            theme = 'theme-green';
+        } else if (i > (NAMES_CONFIG.rows * 2) / 3) {
+            theme = 'theme-red';
+        }
+
         const row = createNameRow(
             displayNames,
             i % 2 === 0, // Alternate direction
             i,
-            rowSpacing * i + (rowSpacing / 2) // Y position
+            rowSpacing * i + (rowSpacing / 2), // Y position
+            theme
         );
         namesLayer.appendChild(row);
     }
@@ -1110,9 +1119,9 @@ function getNamesForCurrentLanguage(victimsList, lang) {
 /**
  * Create a single scrolling row of names
  */
-function createNameRow(namesData, reverse, rowIndex, yPosition) {
+function createNameRow(namesData, reverse, rowIndex, yPosition, theme) {
     const row = document.createElement('div');
-    row.className = `names-row ${reverse ? 'reverse' : ''} layer-${(rowIndex % 3) + 1}`;
+    row.className = `names-row ${reverse ? 'reverse' : ''} layer-${(rowIndex % 3) + 1} ${theme}`;
     row.style.top = `${yPosition}px`;
 
     // Random speed within range

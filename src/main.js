@@ -418,53 +418,111 @@ function geoToMapPosition(lon, lat) {
 function createTulip(victim, position) {
     const group = new THREE.Group();
 
-    // Stem
-    const stemGeometry = new THREE.CylinderGeometry(0.05, 0.08, 1.5, 8);
+    // Low-poly stem (hexagonal prism for geometric look)
+    const stemGeometry = new THREE.CylinderGeometry(0.04, 0.06, 1.5, 6);
     const stemMaterial = new THREE.MeshStandardMaterial({
         color: CONFIG.colors.tulipStem,
-        roughness: 0.7
+        roughness: 0.6,
+        flatShading: true
     });
     const stem = new THREE.Mesh(stemGeometry, stemMaterial);
     stem.position.y = 0.75;
     group.add(stem);
 
-    // Tulip petals (simplified as overlapping cones/spheres)
+    // Leaf material (bright green for contrast)
+    const leafMaterial = new THREE.MeshStandardMaterial({
+        color: 0x2d5a27,
+        roughness: 0.5,
+        flatShading: true,
+        side: THREE.DoubleSide
+    });
+
+    // Create 3D geometric leaf using ExtrudeGeometry with curved shape
+    function createLeaf3D() {
+        const leafShape = new THREE.Shape();
+        // Pointed leaf shape
+        leafShape.moveTo(0, 0);
+        leafShape.quadraticCurveTo(0.12, 0.5, 0.06, 1.0);
+        leafShape.lineTo(0, 1.3);  // tip
+        leafShape.lineTo(-0.06, 1.0);
+        leafShape.quadraticCurveTo(-0.12, 0.5, 0, 0);
+
+        // Extrude for 3D depth
+        const extrudeSettings = {
+            steps: 2,
+            depth: 0.06,
+            bevelEnabled: true,
+            bevelThickness: 0.02,
+            bevelSize: 0.02,
+            bevelSegments: 1
+        };
+
+        const leafGeometry = new THREE.ExtrudeGeometry(leafShape, extrudeSettings);
+        // Curve the leaf slightly for more natural 3D look
+        const leafMesh = new THREE.Mesh(leafGeometry, leafMaterial);
+        return leafMesh;
+    }
+
+    // Left leaf - 3D, pointing upward, close to stem
+    const leftLeaf = createLeaf3D();
+    leftLeaf.position.set(-0.08, 0.2, -0.03);
+    leftLeaf.rotation.y = Math.PI * 0.15;
+    leftLeaf.rotation.z = Math.PI * 0.06;
+    leftLeaf.scale.set(0.8, 0.9, 1);
+    group.add(leftLeaf);
+
+    // Right leaf - 3D, pointing upward, close to stem
+    const rightLeaf = createLeaf3D();
+    rightLeaf.position.set(0.08, 0.2, -0.03);
+    rightLeaf.rotation.y = -Math.PI * 0.15;
+    rightLeaf.rotation.z = -Math.PI * 0.06;
+    rightLeaf.scale.set(0.8, 0.9, 1);
+    group.add(rightLeaf);
+
+    // Tulip flower head - fully 3D low-poly cup shape
     const petalGroup = new THREE.Group();
     petalGroup.position.y = 1.5;
 
-    // Main bulb shape
-    const bulbGeometry = new THREE.SphereGeometry(0.35, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.7);
+    // Petal material (red)
     const petalMaterial = new THREE.MeshStandardMaterial({
         color: CONFIG.colors.tulipRed,
         roughness: 0.4,
-        metalness: 0.1,
+        metalness: 0.05,
         emissive: CONFIG.colors.tulipRed,
-        emissiveIntensity: 0.1
+        emissiveIntensity: 0.1,
+        flatShading: true
     });
-    const bulb = new THREE.Mesh(bulbGeometry, petalMaterial);
-    bulb.scale.y = 1.4;
-    petalGroup.add(bulb);
+
+    // Create tulip cup using LatheGeometry for proper 3D shape
+    // Define the profile of the tulip cup
+    const points = [];
+    points.push(new THREE.Vector2(0.02, 0));      // Bottom center (narrow)
+    points.push(new THREE.Vector2(0.08, 0.1));    // Start widening
+    points.push(new THREE.Vector2(0.18, 0.25));   // Belly
+    points.push(new THREE.Vector2(0.22, 0.4));    // Widest part
+    points.push(new THREE.Vector2(0.18, 0.55));   // Start tapering inward
+    points.push(new THREE.Vector2(0.12, 0.65));   // Near top (petal tips curve in slightly)
+    points.push(new THREE.Vector2(0.15, 0.72));   // Petal tips flare out slightly
+
+    // Create lathe geometry with low segment count for angular/low-poly look
+    const tulipCupGeometry = new THREE.LatheGeometry(points, 6); // 6 segments for hexagonal look
+    const tulipCup = new THREE.Mesh(tulipCupGeometry, petalMaterial);
+    petalGroup.add(tulipCup);
+
+    // Add inner core/center for visual depth
+    const coreGeometry = new THREE.ConeGeometry(0.06, 0.25, 5);
+    const coreMaterial = new THREE.MeshStandardMaterial({
+        color: 0x660000,
+        roughness: 0.6,
+        flatShading: true
+    });
+    const core = new THREE.Mesh(coreGeometry, coreMaterial);
+    core.position.y = 0.35;
+    petalGroup.add(core);
 
     // Store references for breathing animation
-    group.userData.bulb = bulb;
+    group.userData.bulb = petalGroup;
     group.userData.petalMaterial = petalMaterial;
-
-    // Petal tips (elongated shapes pointing up)
-    for (let i = 0; i < 5; i++) {
-        const angle = (i / 5) * Math.PI * 2;
-        const petalTip = new THREE.Mesh(
-            new THREE.ConeGeometry(0.15, 0.5, 6),
-            petalMaterial.clone()
-        );
-        petalTip.position.set(
-            Math.cos(angle) * 0.2,
-            0.3,
-            Math.sin(angle) * 0.2
-        );
-        petalTip.rotation.x = Math.PI * 0.1;
-        petalTip.rotation.z = Math.cos(angle) * 0.2;
-        petalGroup.add(petalTip);
-    }
 
     group.add(petalGroup);
 

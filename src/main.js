@@ -15,6 +15,7 @@ import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import gsap from 'gsap';
 import { cities, victims, getVictimsByCity, getCityById, statistics } from './data/victims.js';
 import { initVisit, markCityViewed, getSoundEnabled, setSoundEnabled } from './utils/persistence.js';
+import { initI18n, toggleLanguage, getCurrentLanguage, formatDateLocalized, formatAge, t } from './utils/i18n.js';
 
 // ============================================
 // Configuration
@@ -68,12 +69,16 @@ const closePanel = document.getElementById('close-panel');
 const victimPopup = document.getElementById('victim-popup');
 const soundToggle = document.getElementById('sound-toggle');
 const ambientAudio = document.getElementById('ambient-audio');
+const langToggle = document.getElementById('lang-toggle');
 
 // ============================================
 // Initialization
 // ============================================
 
 async function init() {
+    // Initialize i18n (language support)
+    initI18n();
+
     // Initialize visit tracking
     visitState = initVisit();
 
@@ -420,6 +425,7 @@ async function startLoadingSequence() {
                 controlsHint.classList.add('visible');
                 infoButton.classList.add('visible');
                 soundToggle.classList.add('visible');
+                langToggle.classList.add('visible');
             }, 1500);
 
             resolve();
@@ -462,6 +468,11 @@ function setupEventListeners() {
 
     // Sound toggle
     soundToggle.addEventListener('click', toggleSound);
+
+    // Language toggle
+    langToggle.addEventListener('click', () => {
+        toggleLanguage();
+    });
 
     // Initialize sound state
     updateSoundUI();
@@ -545,13 +556,21 @@ function checkTulipHover() {
 
 function showVictimPopup(victim, x, y) {
     const city = getCityById(victim.city);
+    const currentLang = getCurrentLanguage();
 
-    // Update popup content
-    document.getElementById('victim-name').textContent = victim.nameFa || victim.name;
-    document.getElementById('victim-name-en').textContent = victim.name;
-    document.getElementById('victim-city').textContent = city ? `${city.nameFa} (${city.name})` : victim.city;
-    document.getElementById('victim-age').textContent = victim.age ? `${victim.age} years old` : 'Age unknown';
-    document.getElementById('victim-date').textContent = formatDate(victim.date);
+    // Update popup content based on language
+    if (currentLang === 'fa') {
+        document.getElementById('victim-name').textContent = victim.nameFa || victim.name;
+        document.getElementById('victim-name-en').textContent = victim.name;
+        document.getElementById('victim-city').textContent = city ? city.nameFa : victim.city;
+    } else {
+        document.getElementById('victim-name').textContent = victim.name;
+        document.getElementById('victim-name-en').textContent = victim.nameFa || '';
+        document.getElementById('victim-city').textContent = city ? `${city.name}` : victim.city;
+    }
+
+    document.getElementById('victim-age').textContent = formatAge(victim.age);
+    document.getElementById('victim-date').textContent = formatDateLocalized(victim.date);
 
     // Position popup
     const popup = victimPopup;
@@ -573,13 +592,8 @@ function hideVictimPopup() {
 }
 
 function formatDate(dateStr) {
-    if (!dateStr) return 'Date unknown';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+    // Use localized date formatting from i18n
+    return formatDateLocalized(dateStr);
 }
 
 // ============================================

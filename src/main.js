@@ -68,6 +68,7 @@ const infoButton = document.getElementById('info-button');
 const infoPanel = document.getElementById('info-panel');
 const closePanel = document.getElementById('close-panel');
 const victimPopup = document.getElementById('victim-popup');
+const closeVictimPopup = document.getElementById('close-victim-popup');
 const soundToggle = document.getElementById('sound-toggle');
 const ambientAudio = document.getElementById('ambient-audio');
 const langToggle = document.getElementById('lang-toggle');
@@ -466,6 +467,9 @@ function setupEventListeners() {
             hideVictimPopup();
         }
     });
+
+    // Close victim popup when clicking the close button
+    closeVictimPopup.addEventListener('click', hideVictimPopup);
 
     // Sound toggle
     soundToggle.addEventListener('click', toggleSound);

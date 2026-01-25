@@ -383,6 +383,31 @@ body {
   text-align: center;
 }
 
+#close-victim-popup {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+  z-index: 10;
+}
+
+#close-victim-popup:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+}
+
 .tulip-icon {
   font-size: 2.5rem;
   margin-bottom: 0.75rem;
@@ -705,6 +730,11 @@ body {
 /* Victim popup RTL adjustments */
 [dir="rtl"] #victim-popup {
   text-align: right;
+}
+
+[dir="rtl"] #close-victim-popup {
+  right: auto;
+  left: 0.5rem;
 }
 
 [dir="rtl"] #victim-popup h3 {

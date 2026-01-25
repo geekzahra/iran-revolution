@@ -13,7 +13,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import gsap from 'gsap';
-import { cities, victims, getVictimsByCity, getCityById, statistics } from './data/victims.js';
+import { cities, victims, getVictimsByCity, getCityById, statistics, getSupabaseVictims } from './data/victims.js';
 import { initVisit, markCityViewed, getSoundEnabled, setSoundEnabled } from './utils/persistence.js';
 import { initI18n, toggleLanguage, getCurrentLanguage, formatDateLocalized, formatAge, t } from './utils/i18n.js';
 
@@ -94,7 +94,8 @@ async function init() {
 
     // Load Iran map from SVG and create tulips
     await loadIranMap();
-    createTulips();
+    await createTulips();
+
 
     // Setup event listeners
     setupEventListeners();
@@ -350,9 +351,13 @@ function createTulip(victim, position) {
     return group;
 }
 
-function createTulips() {
+async function createTulips() {
+    // Fetch victims from Supabase (falls back to local data)
+    const activeVictims = await getSupabaseVictims();
+
     // Create tulips for each victim
-    victims.forEach((victim, index) => {
+    activeVictims.forEach((victim, index) => {
+
         // Get city coordinates
         const city = getCityById(victim.city);
         if (!city) return;
@@ -585,6 +590,23 @@ function showVictimPopup(victim, x, y) {
     document.getElementById('victim-age').textContent = formatAge(victim.age);
     document.getElementById('victim-date').textContent = formatDateLocalized(victim.date);
 
+    // Handle Victim Image
+    const imageContainer = document.getElementById('victim-image-container');
+    const imageEl = document.getElementById('victim-image');
+
+    if (victim.imageUrl) {
+        // If it's a Supabase storage path or a full URL
+        const imageUrl = victim.imageUrl.startsWith('http')
+            ? victim.imageUrl
+            : `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/victim-images/${victim.imageUrl}`;
+
+        imageEl.src = imageUrl;
+        imageContainer.classList.remove('hidden');
+    } else {
+        imageContainer.classList.add('hidden');
+    }
+
+
     // Position popup
     const popup = victimPopup;
     popup.style.left = `${Math.min(x + 20, window.innerWidth - 320)}px`;
@@ -631,6 +653,9 @@ function updateVictimPopupLanguage() {
 
     document.getElementById('victim-age').textContent = formatAge(victim.age);
     document.getElementById('victim-date').textContent = formatDateLocalized(victim.date);
+
+    // Image logic remains the same (handled in showVictimPopup)
+
 }
 
 function formatDate(dateStr) {

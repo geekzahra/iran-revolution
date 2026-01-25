@@ -3,6 +3,9 @@
  * Data sourced from: https://fa.wikipedia.org/wiki/کشتارهای_دی_۱۴۰۴_ایران
  */
 
+import { supabase } from '../utils/supabase.js';
+
+
 // City coordinates (approximate) and death counts
 // Coordinates are [longitude, latitude] for Three.js positioning
 export const cities = [
@@ -437,3 +440,36 @@ export const statistics = {
     internationalProtests: 168,
     countriesWithProtests: 30
 };
+
+/**
+ * Fetch victims from Supabase
+ * Falls back to local data if Supabase is not configured or fails
+ */
+export async function getSupabaseVictims() {
+    try {
+        const { data, error } = await supabase
+            .from('victims')
+            .select('*')
+            .order('death_date', { ascending: true });
+
+        if (error) throw error;
+        if (!data || data.length === 0) return victims;
+
+        // Map Supabase data to the format used in the app
+        return data.map(v => ({
+            id: v.id,
+            name: v.name_en,
+            nameFa: v.name_fa,
+            city: v.city_id,
+            age: v.age,
+            date: v.death_date,
+            imageUrl: v.image_url,
+            cityNameEn: v.city_name_en,
+            cityNameFa: v.city_name_fa
+        }));
+    } catch (err) {
+        console.warn('Supabase fetch failed, using local fallback:', err.message);
+        return victims;
+    }
+}
+

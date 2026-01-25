@@ -526,8 +526,8 @@ function createTulip(victim, position) {
 
     group.add(petalGroup);
 
-    // Position the tulip
-    group.position.set(position.x, 1, position.z);
+    // Position the tulip on the map surface (y=0)
+    group.position.set(position.x, 0, position.z);
 
     // Start with zero scale for animation
     group.scale.set(0, 0, 0);

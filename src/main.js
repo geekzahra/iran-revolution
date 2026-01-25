@@ -140,11 +140,13 @@ function setupOnboarding() {
     // Language Selection
     btnLangEn.addEventListener('click', () => {
         setLanguage('en');
+        updateNamesBackgroundLanguage(); // Sync background early
         goToOnboardingStep(onboardingStepSound);
     });
 
     btnLangFa.addEventListener('click', () => {
         setLanguage('fa');
+        updateNamesBackgroundLanguage(); // Sync background early
         goToOnboardingStep(onboardingStepSound);
     });
 
@@ -202,7 +204,8 @@ async function finishOnboarding() {
 
 function setupScene() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(CONFIG.colors.background);
+    // Remove background color to allow the names-background layer to show through
+    scene.background = null;
     scene.fog = new THREE.FogExp2(CONFIG.colors.fog, 0.004);
 }
 
@@ -220,8 +223,10 @@ function setupCamera() {
 function setupRenderer() {
     renderer = new THREE.WebGLRenderer({
         antialias: true,
-        powerPreference: 'high-performance'
+        powerPreference: 'high-performance',
+        alpha: true // Enable transparency
     });
+    renderer.setClearColor(0x000000, 0); // Explicitly set clear alpha to 0 for transparency
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -542,6 +547,9 @@ async function createTulips() {
     // Fetch victims from Supabase (falls back to local data)
     const activeVictims = await getSupabaseVictims();
 
+    // Initialize names background with victim data
+    initNamesBackground(activeVictims);
+
     // Create tulips for each victim
     activeVictims.forEach((victim, index) => {
 
@@ -613,7 +621,8 @@ async function transitionTo3D() {
         gsap.to(ambientAudio, { volume: 0.5, duration: 4 });
     }
 
-    // 3. Reveal Canvas
+    // 3. Reveal Names Background and Canvas
+    showNamesBackground();
     const canvasContainer = document.getElementById('canvas-container');
     canvasContainer.classList.remove('hidden');
     gsap.fromTo(canvasContainer, { opacity: 0 }, { opacity: 1, duration: 3 });
@@ -695,6 +704,8 @@ function setupEventListeners() {
         toggleLanguage();
         // Update victim popup if it's currently visible
         updateVictimPopupLanguage();
+        // Update names background
+        updateNamesBackgroundLanguage();
     });
 
     // Initialize sound state
@@ -710,6 +721,9 @@ function onWindowResize() {
 function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Update names background parallax
+    updateNamesParallax(event.clientX, event.clientY);
 
     if (controls.enabled) {
         checkTulipHover();
@@ -744,6 +758,9 @@ function onMouseClick(event) {
 
 function handleTulipInteraction(tulip, x, y) {
     const victim = tulip.userData.victim;
+
+    // Glow corresponding name in the background
+    glowNameForVictim(victim.id);
 
     if (zoomedTulip === tulip) {
         // Second click: Show story panel
@@ -1007,6 +1024,219 @@ function updateSoundUI() {
     const isEnabled = getSoundEnabled();
     document.getElementById('sound-on').classList.toggle('hidden', !isEnabled);
     document.getElementById('sound-off').classList.toggle('hidden', isEnabled);
+}
+
+// ============================================
+// Names Background - "The Names That Never Stop Passing"
+// ============================================
+
+const namesBackground = document.getElementById('names-background');
+let namesLayer = null;
+let victimNameElements = new Map(); // victimId -> array of span elements
+let allVictimsData = []; // Store victims data for language switching
+
+/**
+ * Configuration for names background
+ */
+const NAMES_CONFIG = {
+    // Number of rows - reduced on mobile for performance
+    rows: window.innerWidth < 768 ? 12 : 18,
+    // Speed range in seconds (slower = more readable)
+    // Increased significantly for a very slow, haunting movement
+    speedMin: 1920,
+    speedMax: 5600,
+    // Parallax intensity (% of viewport)
+    parallaxIntensity: 0.015,
+    // Minimum names to fill a row (will repeat if fewer victims)
+    minNamesPerRow: 40
+};
+
+/**
+ * Initialize the names background layer
+ * Called after victims are loaded from Supabase
+ */
+function initNamesBackground(victimsList) {
+    if (!namesBackground || !victimsList || victimsList.length === 0) return;
+
+    allVictimsData = victimsList; // Store for language updates
+
+    // Create the parallax container
+    namesLayer = document.createElement('div');
+    namesLayer.className = 'names-layer';
+    namesBackground.appendChild(namesLayer);
+
+    const currentLang = getCurrentLanguage();
+
+    // Get victim names based on current language
+    let displayNames = getNamesForCurrentLanguage(victimsList, currentLang);
+
+    console.log(`Initializing names background with ${displayNames.length} names in ${currentLang}`);
+
+    // Generate rows
+    const viewportHeight = window.innerHeight;
+    const rowSpacing = viewportHeight / NAMES_CONFIG.rows;
+
+    for (let i = 0; i < NAMES_CONFIG.rows; i++) {
+        const row = createNameRow(
+            displayNames,
+            i % 2 === 0, // Alternate direction
+            i,
+            rowSpacing * i + (rowSpacing / 2) // Y position
+        );
+        namesLayer.appendChild(row);
+    }
+}
+
+/**
+ * Helper to get names for background based on language
+ */
+function getNamesForCurrentLanguage(victimsList, lang) {
+    let names = [];
+    victimsList.forEach(v => {
+        const name = lang === 'fa' ? (v.name_fa || v.name_en) : (v.name_en || v.name_fa);
+        if (name) names.push({ name, id: v.id });
+    });
+
+    // Fallback names if empty
+    if (names.length === 0) {
+        const placeholdersEn = ['Nika Shakarami', 'Sarina Esmailzadeh', 'Hadis Najafi', 'Kian Pirfalak', 'Mahsa Amini', 'Mehdi Karami', 'Mohammad Hosseini', 'Majidreza Rahnavard'];
+        const placeholdersFa = ['نیکا شاکرمی', 'سارینا اسماعیل‌زاده', 'حدیث نجفی', 'کیان پیرفلک', 'مهسا امینی', 'محمد مهدی کرمی', 'محمد حسینی', 'مجیدرضا رهنورد'];
+        const placeholders = lang === 'fa' ? placeholdersFa : placeholdersEn;
+        names = placeholders.map((name, i) => ({ name, id: `fallback-${i}` }));
+    }
+    return names;
+}
+
+/**
+ * Create a single scrolling row of names
+ */
+function createNameRow(namesData, reverse, rowIndex, yPosition) {
+    const row = document.createElement('div');
+    row.className = `names-row ${reverse ? 'reverse' : ''} layer-${(rowIndex % 3) + 1}`;
+    row.style.top = `${yPosition}px`;
+
+    // Random speed within range
+    const speed = NAMES_CONFIG.speedMin +
+        Math.random() * (NAMES_CONFIG.speedMax - NAMES_CONFIG.speedMin);
+
+    // The content container that will handle the animation
+    const content = document.createElement('div');
+    content.className = 'names-row-content';
+    content.style.animationDuration = `${speed}s`;
+
+    // Shuffle names for this row
+    const shuffled = [...namesData].sort(() => Math.random() - 0.5);
+
+    // Repeat names to ensure enough width for the loop
+    const repeatCount = Math.max(1, Math.ceil(NAMES_CONFIG.minNamesPerRow / shuffled.length));
+    const rowNames = [];
+    for (let r = 0; r < repeatCount; r++) {
+        rowNames.push(...shuffled);
+    }
+
+    // Populate the content with name spans
+    rowNames.forEach(({ name, id }) => {
+        const span = document.createElement('span');
+        span.textContent = name;
+        span.dataset.victimId = id;
+        content.appendChild(span);
+
+        // Store reference for glow effect (only the first few rows to keep the map small)
+        if (!victimNameElements.has(id)) {
+            victimNameElements.set(id, []);
+        }
+        victimNameElements.get(id).push(span);
+    });
+
+    // CRITICAL: Duplicate children for seamless loop
+    const originalCount = content.children.length;
+    for (let i = 0; i < originalCount; i++) {
+        const clone = content.children[i].cloneNode(true);
+        content.appendChild(clone);
+        // Note: we don't add clones to victimNameElements to keep interaction focused
+    }
+
+    row.appendChild(content);
+    return row;
+}
+
+/**
+ * Update parallax effect based on mouse position
+ */
+function updateNamesParallax(mouseX, mouseY) {
+    if (!namesBackground || namesBackground.classList.contains('hidden')) return;
+
+    // Calculate offset from center
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const offsetX = (mouseX - centerX) * NAMES_CONFIG.parallaxIntensity;
+    const offsetY = (mouseY - centerY) * NAMES_CONFIG.parallaxIntensity;
+
+    // Apply via CSS custom properties for smooth performance
+    namesBackground.style.setProperty('--parallax-x', `${-offsetX}px`);
+    namesBackground.style.setProperty('--parallax-y', `${-offsetY}px`);
+}
+
+/**
+ * Glow a name when corresponding tulip is clicked
+ */
+function glowNameForVictim(victimId) {
+    const elements = victimNameElements.get(victimId);
+    if (!elements || elements.length === 0) return;
+
+    // Pick one random element to glow (not all instances)
+    const randomIndex = Math.floor(Math.random() * elements.length);
+    const element = elements[randomIndex];
+
+    // Add glow class (animation handles the rest)
+    element.classList.add('glow');
+
+    // Remove class after animation completes
+    setTimeout(() => {
+        element.classList.remove('glow');
+    }, 1500);
+}
+
+/**
+ * Show the names background with fade-in
+ */
+function showNamesBackground() {
+    if (!namesBackground) {
+        console.error('Names background element not found');
+        return;
+    }
+    console.log('Showing names background...');
+    namesBackground.classList.remove('hidden');
+    gsap.fromTo(namesBackground,
+        { opacity: 0 },
+        { opacity: 1, duration: 3, ease: 'power2.out' }
+    );
+}
+
+/**
+ * Update the background names when language changes
+ */
+function updateNamesBackgroundLanguage() {
+    if (!namesLayer || !allVictimsData.length) return;
+
+    const currentLang = getCurrentLanguage();
+    const newNames = getNamesForCurrentLanguage(allVictimsData, currentLang);
+
+    // We update the spans in each row to the new language without regenerating rows
+    // This maintains animation state and is much smoother
+    const rows = namesLayer.querySelectorAll('.names-row');
+
+    rows.forEach(row => {
+        const spans = row.querySelectorAll('span');
+        // We shuffle for each row to maintain variety
+        const shuffled = [...newNames].sort(() => Math.random() - 0.5);
+
+        spans.forEach((span, index) => {
+            const data = shuffled[index % shuffled.length];
+            span.textContent = data.name;
+            span.dataset.victimId = data.id;
+        });
+    });
 }
 
 // ============================================

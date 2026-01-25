@@ -826,6 +826,181 @@ body {
 }
 
 /* ===========================================
+   NAMES BACKGROUND - "The Names That Never Stop Passing"
+   =========================================== */
+
+#names-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-bg);
+  --parallax-x: 0px;
+  --parallax-y: 0px;
+}
+
+#names-background.hidden {
+  display: none;
+}
+
+/* Container for all name rows - applies parallax */
+.names-layer {
+  position: absolute;
+  inset: 0;
+  transform: translate(var(--parallax-x), var(--parallax-y));
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+
+/* Individual scrolling row */
+.names-row {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+  /* GPU acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* The scrolling content - duplicated for seamless loop */
+.names-row-content {
+  display: flex;
+  align-items: center;
+  gap: 1.6em;
+  /* Reduced gap to 40% of previous value */
+  animation: scroll-names linear infinite;
+  /* GPU acceleration */
+  will-change: transform;
+}
+
+/* Reverse direction */
+.names-row.reverse .names-row-content {
+  animation-name: scroll-names-reverse;
+}
+
+/* Individual name styling */
+.names-row-content span {
+  font-family: var(--font-primary);
+  font-size: 11px;
+  font-weight: 400;
+  /* Increased weight */
+  letter-spacing: 0.1em;
+  /* Increased letter spacing */
+  color: rgba(220, 220, 230, 0.1);
+  /* Reduced opacity (approx 0.1) */
+  opacity: 1;
+  transition: color 0.5s ease, opacity 0.5s ease;
+  user-select: none;
+}
+
+/* Slight variation layers - some rows are slightly more visible */
+.names-row.layer-1 .names-row-content span {
+  color: rgba(220, 220, 230, 0.065);
+  font-size: 10px;
+}
+
+.names-row.layer-2 .names-row-content span {
+  color: rgba(220, 220, 230, 0.13);
+  font-size: 13px;
+}
+
+.names-row.layer-3 .names-row-content span {
+  color: rgba(220, 220, 230, 0.078);
+  font-size: 11px;
+}
+
+/* Glow effect when tulip is clicked */
+.names-row-content span.glow {
+  color: rgba(139, 0, 0, 0.6);
+  text-shadow: 0 0 15px rgba(139, 0, 0, 0.4);
+  animation: name-glow 1.5s ease-out forwards;
+}
+
+@keyframes name-glow {
+  0% {
+    color: rgba(139, 0, 0, 0.6);
+    text-shadow: 0 0 15px rgba(139, 0, 0, 0.4);
+  }
+
+  100% {
+    color: rgba(200, 200, 210, 0.08);
+    text-shadow: none;
+  }
+}
+
+/* Scrolling animations - duplicated content creates seamless loop */
+@keyframes scroll-names {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scroll-names-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Edge fade gradients - applied to container */
+#names-background::before,
+#names-background::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 15%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#names-background::before {
+  left: 0;
+  background: linear-gradient(to right, var(--color-bg), transparent);
+}
+
+#names-background::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-bg), transparent);
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .names-row-content span {
+    font-size: 9px;
+    gap: 1.5em;
+  }
+
+  .names-row.layer-1 .names-row-content span {
+    font-size: 8px;
+  }
+
+  .names-row.layer-2 .names-row-content span {
+    font-size: 10px;
+  }
+
+  .names-row-content {
+    gap: 1.5em;
+  }
+
+  #names-background::before,
+  #names-background::after {
+    width: 10%;
+  }
+}
+
+/* ===========================================
    FLOATING NAMES (for name view)
    =========================================== */
 

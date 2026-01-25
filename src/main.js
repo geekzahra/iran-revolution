@@ -15,7 +15,7 @@ import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import gsap from 'gsap';
 import { cities, victims, getVictimsByCity, getCityById, statistics, getSupabaseVictims } from './data/victims.js';
 import { initVisit, markCityViewed, getSoundEnabled, setSoundEnabled } from './utils/persistence.js';
-import { initI18n, toggleLanguage, getCurrentLanguage, formatDateLocalized, formatAge, t } from './utils/i18n.js';
+import { initI18n, toggleLanguage, getCurrentLanguage, formatDateLocalized, formatAge, t, setLanguage } from './utils/i18n.js';
 import { NarrativeManager } from './utils/narrative.js';
 
 // ============================================
@@ -79,6 +79,15 @@ const langToggle = document.getElementById('lang-toggle');
 const hoverLabel = document.getElementById('victim-hover-label');
 const memorialTagline = document.getElementById('memorial-tagline');
 
+// Onboarding Elements
+const onboardingOverlay = document.getElementById('onboarding-overlay');
+const onboardingStepLang = document.getElementById('onboarding-step-lang');
+const onboardingStepSound = document.getElementById('onboarding-step-sound');
+const btnLangEn = document.getElementById('btn-lang-en');
+const btnLangFa = document.getElementById('btn-lang-fa');
+const btnSoundOn = document.getElementById('btn-sound-on');
+const btnSoundOff = document.getElementById('btn-sound-off');
+
 // ============================================
 // Initialization
 // ============================================
@@ -111,17 +120,84 @@ async function init() {
     // Setup event listeners
     setupEventListeners();
 
+    // Setup onboarding logic
+    setupOnboarding();
+
     // Setup info panel statistics
     setupStatistics();
 
-    // Start loading sequence (fades out overlay to reveal narrative)
+    // Start loading sequence
     await startLoadingSequence();
-
-    // Start narrative engine
-    await narrative.init();
 
     // Start animation loop
     animate();
+}
+
+/**
+ * Handle Onboarding Flow
+ */
+function setupOnboarding() {
+    // Language Selection
+    btnLangEn.addEventListener('click', () => {
+        setLanguage('en');
+        goToOnboardingStep(onboardingStepSound);
+    });
+
+    btnLangFa.addEventListener('click', () => {
+        setLanguage('fa');
+        goToOnboardingStep(onboardingStepSound);
+    });
+
+    // Sound Selection
+    btnSoundOn.addEventListener('click', () => {
+        setSoundEnabled(true);
+        updateSoundUI();
+        finishOnboarding();
+    });
+
+    btnSoundOff.addEventListener('click', () => {
+        setSoundEnabled(false);
+        updateSoundUI();
+        finishOnboarding();
+    });
+}
+
+function goToOnboardingStep(nextStep) {
+    const currentStep = document.querySelector('.onboarding-step:not(.hidden)');
+
+    gsap.to(currentStep, {
+        opacity: 0,
+        y: -20,
+        duration: 0.5,
+        onComplete: () => {
+            currentStep.classList.add('hidden');
+            nextStep.classList.remove('hidden');
+            gsap.fromTo(nextStep,
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.5 }
+            );
+        }
+    });
+}
+
+async function finishOnboarding() {
+    // Fade out onboarding overlay
+    onboardingOverlay.classList.add('fade-out');
+
+    // Start narrative engine - don't await to avoid blocking transition
+    narrative.init();
+
+    // Play initial subtle audio if enabled
+    if (getSoundEnabled()) {
+        ambientAudio.volume = 0;
+        ambientAudio.play().catch(e => console.warn('Audio auto-play prevented:', e));
+        gsap.to(ambientAudio, { volume: 0.1, duration: 2 }); // Very quiet wind-like start
+    }
+
+    // Completely remove overlay after transition to ensure no click interference
+    setTimeout(() => {
+        onboardingOverlay.style.display = 'none';
+    }, 1000);
 }
 
 function setupScene() {
@@ -226,17 +302,31 @@ async function loadIranMap() {
                         // Add "cracked" feel via custom shader modification
                         fillMaterial.onBeforeCompile = (shader) => {
                             shader.uniforms.uTime = { value: 0 };
+                            fillMaterial.userData.shader = shader; // Store for updates
+
+                            shader.vertexShader = `
+                                varying vec3 vPos;
+                                ${shader.vertexShader}
+                            `.replace(
+                                `#include <begin_vertex>`,
+                                `
+                                #include <begin_vertex>
+                                vPos = position;
+                                `
+                            );
+
                             shader.fragmentShader = `
                                 uniform float uTime;
+                                varying vec3 vPos;
                                 ${shader.fragmentShader}
                             `.replace(
                                 `#include <color_fragment>`,
                                 `
                                 #include <color_fragment>
-                                // Simple procedural crack/noise logic
-                                float noise = sin(vUv.x * 50.0) * sin(vUv.y * 50.0);
-                                if (noise > 0.95) {
-                                    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.3, 0.0, 0.0), 0.5);
+                                // Simple procedural crack/noise logic using position instead of UVs
+                                float noise = sin(vPos.x * 10.0) * sin(vPos.y * 10.0);
+                                if (noise > 0.98) {
+                                    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.2, 0.0, 0.0), 0.6);
                                 }
                                 `
                             );
@@ -443,6 +533,11 @@ async function startLoadingSequence() {
         // Phase 1: Loading bar completes
         setTimeout(() => {
             loadingOverlay.classList.add('fade-out');
+
+            // Reveal onboarding
+            onboardingOverlay.classList.remove('hidden');
+            gsap.fromTo(onboardingOverlay, { opacity: 0 }, { opacity: 1, duration: 1 });
+
             resolve();
         }, 2000);
     });
@@ -457,8 +552,6 @@ async function transitionTo3D() {
 
     // 2. Audio fades in/deepens
     if (getSoundEnabled()) {
-        ambientAudio.volume = 0;
-        ambientAudio.play().catch(console.error);
         gsap.to(ambientAudio, { volume: 0.5, duration: 4 });
     }
 
@@ -924,6 +1017,15 @@ function animate() {
             }
         }
     });
+
+    // Update map shaders uTime
+    if (iranMapGroup) {
+        iranMapGroup.traverse((child) => {
+            if (child.isMesh && child.material && child.material.userData && child.material.userData.shader) {
+                child.material.userData.shader.uniforms.uTime.value = time;
+            }
+        });
+    }
 
     // Render
     renderer.render(scene, camera);

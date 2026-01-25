@@ -33,7 +33,8 @@ export class NarrativeManager {
 
     async init() {
         // Ensure victims are loaded for dynamic sentences if needed
-        await getSupabaseVictims();
+        // Non-blocking so narrative can start immediately
+        getSupabaseVictims().catch(console.error);
 
         this.setupEventListeners();
         this.showNextSentence();

@@ -23,6 +23,43 @@
     </div>
   </div>
 
+  <!-- Onboarding Overlay -->
+  <div id="onboarding-overlay" class="hidden">
+    <div class="onboarding-content">
+      <!-- Step 1: Language -->
+      <div id="onboarding-step-lang" class="onboarding-step">
+        <h2 data-i18n="onboarding.lang.title">Choose your language</h2>
+        <div class="onboarding-buttons">
+          <button id="btn-lang-en" class="onboarding-btn">English</button>
+          <button id="btn-lang-fa" class="onboarding-btn">فارسی</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Sound -->
+      <div id="onboarding-step-sound" class="onboarding-step hidden">
+        <h2 data-i18n="onboarding.sound.title">This experience includes audio</h2>
+        <div class="onboarding-buttons">
+          <button id="btn-sound-on" class="onboarding-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            </svg>
+            <span data-i18n="onboarding.sound.unmute">Unmute</span>
+          </button>
+          <button id="btn-sound-off" class="onboarding-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+            <span data-i18n="onboarding.sound.mute">Stay Muted</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Narrative Layer (Acts I & II) -->
   <div id="narrative-layer">
     <div class="narrative-content">

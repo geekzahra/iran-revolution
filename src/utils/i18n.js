@@ -51,7 +51,14 @@ const translations = {
 
         // Language toggle
         'lang.toggle': 'FA | EN',
-        'memorial.tagline': 'Every tulip is a life.'
+        'memorial.tagline': 'Every tulip is a life.',
+
+        // Onboarding
+        'onboarding.lang.title': 'Choose your language',
+        'onboarding.sound.title': 'This experience includes audio',
+        'onboarding.sound.unmute': 'Unmute',
+        'onboarding.sound.mute': 'Stay Muted',
+        'onboarding.start': 'Enter'
     },
     fa: {
         // Page title
@@ -96,7 +103,14 @@ const translations = {
 
         // Language toggle
         'lang.toggle': 'FA | EN',
-        'memorial.tagline': 'هر لاله، یک زندگی است.'
+        'memorial.tagline': 'هر لاله، یک زندگی است.',
+
+        // Onboarding
+        'onboarding.lang.title': 'زبان خود را انتخاب کنید',
+        'onboarding.sound.title': 'این تجربه شامل صدا است',
+        'onboarding.sound.unmute': 'پخش صدا',
+        'onboarding.sound.mute': 'بدون صدا',
+        'onboarding.start': 'ورود'
     }
 };
 

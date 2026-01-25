@@ -58,6 +58,7 @@ let iranMapGroup, tulips = [];
 let raycaster, mouse;
 let selectedTulip = null;
 let visitState;
+let currentlyDisplayedVictim = null; // Track current victim for language updates
 
 // DOM Elements
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -472,6 +473,8 @@ function setupEventListeners() {
     // Language toggle
     langToggle.addEventListener('click', () => {
         toggleLanguage();
+        // Update victim popup if it's currently visible
+        updateVictimPopupLanguage();
     });
 
     // Initialize sound state
@@ -555,17 +558,23 @@ function checkTulipHover() {
 // ============================================
 
 function showVictimPopup(victim, x, y) {
+    // Store for language updates
+    currentlyDisplayedVictim = victim;
+
     const city = getCityById(victim.city);
     const currentLang = getCurrentLanguage();
 
     // Update popup content based on language
+    const victimNameEl = document.getElementById('victim-name');
+    const victimNameEnEl = document.getElementById('victim-name-en');
+
     if (currentLang === 'fa') {
-        document.getElementById('victim-name').textContent = victim.nameFa || victim.name;
-        document.getElementById('victim-name-en').textContent = victim.name;
+        victimNameEl.textContent = victim.nameFa || victim.name;
+        victimNameEnEl.style.display = 'none';
         document.getElementById('victim-city').textContent = city ? city.nameFa : victim.city;
     } else {
-        document.getElementById('victim-name').textContent = victim.name;
-        document.getElementById('victim-name-en').textContent = victim.nameFa || '';
+        victimNameEl.textContent = victim.name;
+        victimNameEnEl.style.display = 'none';
         document.getElementById('victim-city').textContent = city ? `${city.name}` : victim.city;
     }
 
@@ -589,6 +598,35 @@ function showVictimPopup(victim, x, y) {
 
 function hideVictimPopup() {
     victimPopup.classList.remove('visible');
+    currentlyDisplayedVictim = null;
+}
+
+// Update victim popup content when language changes
+function updateVictimPopupLanguage() {
+    if (!currentlyDisplayedVictim || !victimPopup.classList.contains('visible')) {
+        return;
+    }
+
+    const victim = currentlyDisplayedVictim;
+    const city = getCityById(victim.city);
+    const currentLang = getCurrentLanguage();
+
+    // Update popup content based on new language
+    const victimNameEl = document.getElementById('victim-name');
+    const victimNameEnEl = document.getElementById('victim-name-en');
+
+    if (currentLang === 'fa') {
+        victimNameEl.textContent = victim.nameFa || victim.name;
+        victimNameEnEl.style.display = 'none';
+        document.getElementById('victim-city').textContent = city ? city.nameFa : victim.city;
+    } else {
+        victimNameEl.textContent = victim.name;
+        victimNameEnEl.style.display = 'none';
+        document.getElementById('victim-city').textContent = city ? `${city.name}` : victim.city;
+    }
+
+    document.getElementById('victim-age').textContent = formatAge(victim.age);
+    document.getElementById('victim-date').textContent = formatDateLocalized(victim.date);
 }
 
 function formatDate(dateStr) {

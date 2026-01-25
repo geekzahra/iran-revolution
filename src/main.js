@@ -63,6 +63,12 @@ let currentlyDisplayedVictim = null; // Track current victim for language update
 let narrative;
 let zoomedTulip = null;
 let lastClickTime = 0;
+let currentlyHoveredTulip = null; // Track hovered tulip for optimization
+
+// Optimization Cache
+let mapShaderMaterials = []; // For optimized uTime updates
+let tulipHitboxes = []; // For optimized raycasting
+let isHoverUpdatePending = false; // For raycasting throttling
 
 // DOM Elements
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -339,6 +345,7 @@ async function loadIranMap() {
 
                         const mesh = new THREE.Mesh(geometry, fillMaterial);
                         iranMapGroup.add(mesh);
+                        mapShaderMaterials.push(fillMaterial);
                     });
 
                     // Create stroke/border
@@ -574,6 +581,16 @@ function createTulip(victim, position) {
 
     group.add(petalGroup);
 
+    // Add invisible hitbox for efficient raycasting
+    const hitboxGeometry = new THREE.CylinderGeometry(0.5, 0.5, 2.2, 6);
+    const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false });
+    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+    hitbox.position.y = 1.1;
+    hitbox.userData.isHitbox = true;
+    hitbox.userData.parentTulip = group;
+    group.add(hitbox);
+    tulipHitboxes.push(hitbox);
+
     // Position the tulip on the map surface (y=0)
     group.position.set(position.x, 0, position.z);
 
@@ -584,6 +601,9 @@ function createTulip(victim, position) {
 }
 
 async function createTulips() {
+    // Reset optimization caches
+    tulipHitboxes = [];
+
     // Fetch victims from Supabase (falls back to local data)
     const activeVictims = await getSupabaseVictims();
 
@@ -765,8 +785,13 @@ function onMouseMove(event) {
     // Update names background parallax
     updateNamesParallax(event.clientX, event.clientY);
 
-    if (controls.enabled) {
-        checkTulipHover();
+    // Throttle interaction logic
+    if (controls.enabled && !isHoverUpdatePending) {
+        isHoverUpdatePending = true;
+        requestAnimationFrame(() => {
+            checkTulipHover();
+            isHoverUpdatePending = false;
+        });
     }
 }
 
@@ -774,17 +799,14 @@ function onMouseClick(event) {
     if (!controls.enabled) return;
 
     raycaster.setFromCamera(mouse, camera);
-    const tulipMeshes = tulips.flatMap(t => t.children);
-    const intersects = raycaster.intersectObjects(tulipMeshes, true);
+    // Optimized: Use hitboxes
+    const intersects = raycaster.intersectObjects(tulipHitboxes, true);
 
     if (intersects.length > 0) {
-        // Find the parent tulip group
-        let tulip = intersects[0].object;
-        while (tulip.parent && !tulip.userData.isTulip) {
-            tulip = tulip.parent;
-        }
+        let hit = intersects[0].object;
+        let tulip = hit.userData.parentTulip;
 
-        if (tulip.userData.isTulip) {
+        if (tulip && tulip.userData.isTulip) {
             handleTulipInteraction(tulip, event.clientX, event.clientY);
         }
     } else {
@@ -859,41 +881,54 @@ function resetCamera() {
 
 function checkTulipHover() {
     raycaster.setFromCamera(mouse, camera);
-    const tulipMeshes = tulips.flatMap(t => t.children);
-    const intersects = raycaster.intersectObjects(tulipMeshes, true);
+    // Optimized: Intersection with hitboxes instead of full geometry
+    const intersects = raycaster.intersectObjects(tulipHitboxes, true);
 
     if (intersects.length > 0) {
-        // Find the parent tulip group
-        let tulip = intersects[0].object;
-        while (tulip.parent && !tulip.userData.isTulip) {
-            tulip = tulip.parent;
-        }
+        let hit = intersects[0].object;
+        let tulip = hit.userData.parentTulip;
 
-        if (tulip.userData.isTulip) {
-            // Hover state: Tulip brightens slightly, Name appears only
-            gsap.to(tulip.scale, {
-                x: 1.1,
-                y: 1.1,
-                z: 1.1,
-                duration: 0.2
-            });
+        if (tulip && tulip.userData.isTulip) {
+            if (currentlyHoveredTulip !== tulip) {
+                // Reset previous hover state
+                if (currentlyHoveredTulip && currentlyHoveredTulip !== zoomedTulip) {
+                    gsap.to(currentlyHoveredTulip.scale, { x: 1, y: 1, z: 1, duration: 0.2 });
+                    if (currentlyHoveredTulip.userData.petalMaterial) {
+                        currentlyHoveredTulip.userData.petalMaterial.emissiveIntensity = 0.5;
+                    }
+                }
 
-            if (tulip.userData.petalMaterial) {
-                tulip.userData.petalMaterial.emissiveIntensity = 0.5;
+                currentlyHoveredTulip = tulip;
+
+                // Set new hover state: scale up and brighten
+                gsap.to(tulip.scale, {
+                    x: 1.1,
+                    y: 1.1,
+                    z: 1.1,
+                    duration: 0.2
+                });
+
+                if (tulip.userData.petalMaterial) {
+                    tulip.userData.petalMaterial.emissiveIntensity = 0.8;
+                }
+                document.body.style.cursor = 'pointer';
             }
 
             showHoverLabel(tulip.userData.victim);
-            document.body.style.cursor = 'pointer';
             return;
         }
     }
 
-    // Reset all tulips
-    tulips.forEach(tulip => {
-        if (tulip.userData.petalMaterial) {
-            // Only reset if not breathing phase or just let breathing handle it
+    // No intersection: reset hovered tulip if any
+    if (currentlyHoveredTulip) {
+        if (currentlyHoveredTulip !== zoomedTulip) {
+            gsap.to(currentlyHoveredTulip.scale, { x: 1, y: 1, z: 1, duration: 0.2 });
+            if (currentlyHoveredTulip.userData.petalMaterial) {
+                currentlyHoveredTulip.userData.petalMaterial.emissiveIntensity = 0.5;
+            }
         }
-    });
+        currentlyHoveredTulip = null;
+    }
 
     hideHoverLabel();
     document.body.style.cursor = 'grab';
@@ -1340,13 +1375,12 @@ function animate() {
     // Tulips are static glowing presences (no animation)
 
 
-    // Update map shaders uTime
-    if (iranMapGroup) {
-        iranMapGroup.traverse((child) => {
-            if (child.isMesh && child.material && child.material.userData && child.material.userData.shader) {
-                child.material.userData.shader.uniforms.uTime.value = time;
-            }
-        });
+    // Update map shaders uTime - Optimized loop (no traversal)
+    for (let i = 0; i < mapShaderMaterials.length; i++) {
+        const mat = mapShaderMaterials[i];
+        if (mat.userData && mat.userData.shader) {
+            mat.userData.shader.uniforms.uTime.value = time;
+        }
     }
 
     // Render

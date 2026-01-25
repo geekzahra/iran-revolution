@@ -50,7 +50,8 @@ const translations = {
         'victim.years': 'years old',
 
         // Language toggle
-        'lang.toggle': 'فا'
+        'lang.toggle': 'FA | EN',
+        'memorial.tagline': 'Every tulip is a life.'
     },
     fa: {
         // Page title
@@ -94,7 +95,8 @@ const translations = {
         'victim.years': 'ساله',
 
         // Language toggle
-        'lang.toggle': 'EN'
+        'lang.toggle': 'FA | EN',
+        'memorial.tagline': 'هر لاله، یک زندگی است.'
     }
 };
 

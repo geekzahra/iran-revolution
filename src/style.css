@@ -149,6 +149,78 @@ body {
 }
 
 /* ===========================================
+   NARRATIVE LAYER (Acts I & II)
+   =========================================== */
+
+#narrative-layer {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  padding: 2rem;
+}
+
+.narrative-content {
+  text-align: center;
+  max-width: 800px;
+}
+
+#narrative-text-container {
+  font-family: 'Inter', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 300;
+  min-height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2em;
+}
+
+#narrative-cursor {
+  display: inline-block;
+  width: 2px;
+  animation: blink 1s step-end infinite;
+  color: var(--color-text-subtle);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+#scroll-hint {
+  position: absolute;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--color-text-subtle);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+.narrative-pivot {
+  margin-top: 3rem;
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  color: var(--color-text-muted);
+  line-height: 1.8;
+  white-space: pre-line;
+  font-style: italic;
+}
+
+#narrative-text.broken {
+  color: var(--color-accent);
+  text-shadow: 0 0 10px var(--color-accent-glow);
+}
+
+/* ===========================================
    CONTROLS HINT
    =========================================== */
 
@@ -378,6 +450,30 @@ body {
   transform: scale(1);
 }
 
+#victim-popup.full-story {
+  width: min(600px, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#victim-popup.full-story .victim-popup-content {
+  padding: 3rem 2rem;
+}
+
+#victim-story {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 1.5rem;
+  text-align: justify;
+  font-family: var(--font-primary);
+}
+
+[dir="rtl"] #victim-story {
+  font-family: var(--font-persian);
+  text-align: right;
+}
+
 .victim-popup-content {
   padding: 1.5rem;
   text-align: center;
@@ -479,6 +575,32 @@ body {
 }
 
 /* ===========================================
+   VICTIM HOVER LABEL
+   =========================================== */
+
+#victim-hover-label {
+  position: fixed;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 0, 0, 0.5);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0;
+  transform: translate(-50%, -100%) translateY(-20px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+#victim-hover-label.visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) translateY(-10px);
+}
+
+/* ===========================================
    BACK BUTTON
    =========================================== */
 
@@ -562,11 +684,11 @@ body {
   position: fixed;
   top: 1.5rem;
   left: 1.5rem;
-  width: 48px;
   height: 48px;
+  padding: 0 1.25rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
+  border-radius: 100px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -574,7 +696,7 @@ body {
   color: var(--color-text-muted);
   z-index: 100;
   opacity: 0;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   font-family: var(--font-primary);
   transition:
@@ -595,7 +717,35 @@ body {
 }
 
 .lang-text {
-  font-family: var(--font-persian);
+  font-family: var(--font-primary);
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+
+.lang-text {
+  font-family: var(--font-primary);
+  letter-spacing: 0.1em;
+}
+
+#memorial-tagline {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  font-size: 0.75rem;
+  color: var(--color-text-subtle);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity var(--transition-medium);
+}
+
+#memorial-tagline.visible {
+  opacity: 1;
+}
+
+#memorial-tagline.hidden {
+  display: none;
 }
 
 /* ===========================================
@@ -734,6 +884,11 @@ body {
 [dir="rtl"] #sound-toggle {
   right: auto;
   left: 1.5rem;
+}
+
+[dir="rtl"] #memorial-tagline {
+  left: auto;
+  right: 2rem;
 }
 
 /* Info panel slides from left in RTL */

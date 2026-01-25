@@ -23,11 +23,22 @@
     </div>
   </div>
 
-  <!-- Main Canvas Container -->
-  <div id="canvas-container"></div>
+  <!-- Narrative Layer (Acts I & II) -->
+  <div id="narrative-layer">
+    <div class="narrative-content">
+      <div id="narrative-text-container">
+        <span id="narrative-text"></span>
+        <span id="narrative-cursor">|</span>
+      </div>
+      <div id="scroll-hint" class="hidden">Scroll to remember</div>
+    </div>
+  </div>
 
-  <!-- Intro Text -->
-  <div id="intro-text">
+  <!-- Main Canvas Container -->
+  <div id="canvas-container" class="hidden"></div>
+
+  <!-- Intro Text (Legacy, will be handled by narrative or used for Act III transition) -->
+  <div id="intro-text" class="hidden">
     <h1 data-i18n="intro.title">Geography of Absence</h1>
     <p data-i18n="intro.subtitle">Each tulip, a life taken</p>
     <p class="subtitle" data-i18n="intro.date">Iran, January 2026</p>
@@ -139,6 +150,9 @@
     </div>
   </div>
 
+  <!-- Victim Hover Label -->
+  <div id="victim-hover-label" class="hidden"></div>
+
   <!-- Audio Element -->
   <audio id="ambient-audio" loop preload="auto">
     <source src="/audio/ambient.mp3" type="audio/mpeg">
@@ -161,8 +175,11 @@
 
   <!-- Language Toggle -->
   <button id="lang-toggle" aria-label="Toggle language">
-    <span class="lang-text">فا</span>
+    <span class="lang-text">FA | EN</span>
   </button>
+
+  <!-- Act IV Minimalist Tagline -->
+  <div id="memorial-tagline" class="hidden" data-i18n="memorial.tagline">Every tulip is a life.</div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

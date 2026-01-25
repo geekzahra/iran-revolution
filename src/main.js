@@ -16,6 +16,7 @@ import gsap from 'gsap';
 import { cities, victims, getVictimsByCity, getCityById, statistics, getSupabaseVictims } from './data/victims.js';
 import { initVisit, markCityViewed, getSoundEnabled, setSoundEnabled } from './utils/persistence.js';
 import { initI18n, toggleLanguage, getCurrentLanguage, formatDateLocalized, formatAge, t } from './utils/i18n.js';
+import { NarrativeManager } from './utils/narrative.js';
 
 // ============================================
 // Configuration
@@ -59,6 +60,9 @@ let raycaster, mouse;
 let selectedTulip = null;
 let visitState;
 let currentlyDisplayedVictim = null; // Track current victim for language updates
+let narrative;
+let zoomedTulip = null;
+let lastClickTime = 0;
 
 // DOM Elements
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -72,6 +76,8 @@ const closeVictimPopup = document.getElementById('close-victim-popup');
 const soundToggle = document.getElementById('sound-toggle');
 const ambientAudio = document.getElementById('ambient-audio');
 const langToggle = document.getElementById('lang-toggle');
+const hoverLabel = document.getElementById('victim-hover-label');
+const memorialTagline = document.getElementById('memorial-tagline');
 
 // ============================================
 // Initialization
@@ -84,7 +90,13 @@ async function init() {
     // Initialize visit tracking
     visitState = initVisit();
 
-    // Setup Three.js
+    // Initialize Narrative Manager
+    narrative = new NarrativeManager();
+    narrative.onComplete = () => {
+        transitionTo3D();
+    };
+
+    // Setup Three.js (Keep it hidden initially)
     setupScene();
     setupCamera();
     setupRenderer();
@@ -96,15 +108,17 @@ async function init() {
     await loadIranMap();
     await createTulips();
 
-
     // Setup event listeners
     setupEventListeners();
 
     // Setup info panel statistics
     setupStatistics();
 
-    // Start loading sequence
+    // Start loading sequence (fades out overlay to reveal narrative)
     await startLoadingSequence();
+
+    // Start narrative engine
+    await narrative.init();
 
     // Start animation loop
     animate();
@@ -198,14 +212,35 @@ async function loadIranMap() {
                     const shapes = SVGLoader.createShapes(path);
 
                     shapes.forEach((shape) => {
-                        // Create filled shape
-                        const geometry = new THREE.ShapeGeometry(shape);
+                        // Create filled shape - using a custom shader or enhanced material for "wounded" look
+                        const geometry = new THREE.ShapeGeometry(shape, 12); // Increase segments for better lighting/textures
+
                         const fillMaterial = new THREE.MeshStandardMaterial({
                             color: CONFIG.colors.mapFill,
-                            roughness: 0.8,
-                            metalness: 0.1,
-                            side: THREE.DoubleSide
+                            roughness: 0.9,
+                            metalness: 0.05,
+                            side: THREE.DoubleSide,
+                            emissive: 0x000000
                         });
+
+                        // Add "cracked" feel via custom shader modification
+                        fillMaterial.onBeforeCompile = (shader) => {
+                            shader.uniforms.uTime = { value: 0 };
+                            shader.fragmentShader = `
+                                uniform float uTime;
+                                ${shader.fragmentShader}
+                            `.replace(
+                                `#include <color_fragment>`,
+                                `
+                                #include <color_fragment>
+                                // Simple procedural crack/noise logic
+                                float noise = sin(vUv.x * 50.0) * sin(vUv.y * 50.0);
+                                if (noise > 0.95) {
+                                    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.3, 0.0, 0.0), 0.5);
+                                }
+                                `
+                            );
+                        };
 
                         const mesh = new THREE.Mesh(geometry, fillMaterial);
                         iranMapGroup.add(mesh);
@@ -320,6 +355,10 @@ function createTulip(victim, position) {
     bulb.scale.y = 1.4;
     petalGroup.add(bulb);
 
+    // Store references for breathing animation
+    group.userData.bulb = bulb;
+    group.userData.petalMaterial = petalMaterial;
+
     // Petal tips (elongated shapes pointing up)
     for (let i = 0; i < 5; i++) {
         const angle = (i / 5) * Math.PI * 2;
@@ -404,40 +443,53 @@ async function startLoadingSequence() {
         // Phase 1: Loading bar completes
         setTimeout(() => {
             loadingOverlay.classList.add('fade-out');
-        }, CONFIG.animation.loadingDuration);
-
-        // Phase 2: Map rises
-        setTimeout(() => {
-            gsap.to(iranMapGroup.position, {
-                y: 0,
-                duration: 2,
-                ease: 'power2.out'
-            });
-
-            // Show intro text
-            introText.classList.add('visible');
-        }, CONFIG.animation.loadingDuration + 500);
-
-        // Phase 3: Tulips grow
-        setTimeout(() => {
-            revealTulips();
-        }, CONFIG.animation.loadingDuration + 2000);
-
-        // Phase 4: Enable controls and show UI
-        setTimeout(() => {
-            controls.enabled = true;
-            introText.classList.add('fade-out');
-
-            setTimeout(() => {
-                controlsHint.classList.add('visible');
-                infoButton.classList.add('visible');
-                soundToggle.classList.add('visible');
-                langToggle.classList.add('visible');
-            }, 1500);
-
             resolve();
-        }, CONFIG.animation.loadingDuration + CONFIG.animation.tulipGrowDuration + 3000);
+        }, 2000);
     });
+}
+
+/**
+ * Transition from Narrative to 3D World (Act III)
+ */
+async function transitionTo3D() {
+    // 1. Narrative faints away
+    narrative.transitionToMap();
+
+    // 2. Audio fades in/deepens
+    if (getSoundEnabled()) {
+        ambientAudio.volume = 0;
+        ambientAudio.play().catch(console.error);
+        gsap.to(ambientAudio, { volume: 0.5, duration: 4 });
+    }
+
+    // 3. Reveal Canvas
+    const canvasContainer = document.getElementById('canvas-container');
+    canvasContainer.classList.remove('hidden');
+    gsap.fromTo(canvasContainer, { opacity: 0 }, { opacity: 1, duration: 3 });
+
+    // 4. Map rises from depth
+    gsap.to(iranMapGroup.position, {
+        y: 0,
+        duration: 4,
+        ease: 'power2.out'
+    });
+
+    // 5. Tulips growth
+    setTimeout(() => {
+        revealTulips();
+    }, 2000);
+
+    // 6. Final UI revealing
+    setTimeout(() => {
+        controls.enabled = true;
+        infoButton.classList.add('visible');
+        soundToggle.classList.add('visible');
+        langToggle.classList.add('visible');
+
+        const tagline = document.getElementById('memorial-tagline');
+        tagline.classList.remove('hidden');
+        tagline.classList.add('visible');
+    }, 5000);
 }
 
 // ============================================
@@ -475,6 +527,14 @@ function setupEventListeners() {
 
     // Close victim popup when clicking the close button
     closeVictimPopup.addEventListener('click', hideVictimPopup);
+
+    // Close on clicking outside
+    window.addEventListener('mousedown', (e) => {
+        if (!e.target.closest('#victim-popup') && !e.target.closest('canvas')) {
+            if (zoomedTulip) resetCamera();
+            hideVictimPopup();
+        }
+    });
 
     // Sound toggle
     soundToggle.addEventListener('click', toggleSound);
@@ -520,25 +580,79 @@ function onMouseClick(event) {
         }
 
         if (tulip.userData.isTulip) {
-            showVictimPopup(tulip.userData.victim, event.clientX, event.clientY);
+            handleTulipInteraction(tulip, event.clientX, event.clientY);
         }
+    } else {
+        // Clicked empty space
+        if (zoomedTulip) {
+            resetCamera();
+        }
+        hideVictimPopup();
     }
+}
+
+function handleTulipInteraction(tulip, x, y) {
+    const victim = tulip.userData.victim;
+
+    if (zoomedTulip === tulip) {
+        // Second click: Show story panel
+        showVictimPopup(victim, x, y, true);
+    } else {
+        // First click: Zoom in and show age/city
+        zoomedTulip = tulip;
+        zoomToTulip(tulip);
+        showVictimPopup(victim, x, y, false); // false = basic info only
+    }
+}
+
+function zoomToTulip(tulip) {
+    const targetPos = new THREE.Vector3().copy(tulip.position);
+
+    // Position camera offset from tulip
+    const cameraPos = new THREE.Vector3().copy(targetPos).add(new THREE.Vector3(0, 10, 15));
+
+    gsap.to(camera.position, {
+        x: cameraPos.x,
+        y: cameraPos.y,
+        z: cameraPos.z,
+        duration: 2,
+        ease: 'power2.inOut'
+    });
+
+    gsap.to(controls.target, {
+        x: targetPos.x,
+        y: targetPos.y,
+        z: targetPos.z,
+        duration: 2,
+        ease: 'power2.inOut',
+        onUpdate: () => controls.update()
+    });
+}
+
+function resetCamera() {
+    zoomedTulip = null;
+    gsap.to(camera.position, {
+        x: CONFIG.camera.startPosition.x,
+        y: CONFIG.camera.startPosition.y,
+        z: CONFIG.camera.startPosition.z,
+        duration: 2,
+        ease: 'power2.inOut'
+    });
+
+    gsap.to(controls.target, {
+        x: 0,
+        y: 0,
+        z: 0,
+        duration: 2,
+        ease: 'power2.inOut',
+        onUpdate: () => controls.update()
+    });
 }
 
 function checkTulipHover() {
     raycaster.setFromCamera(mouse, camera);
     const tulipMeshes = tulips.flatMap(t => t.children);
     const intersects = raycaster.intersectObjects(tulipMeshes, true);
-
-    // Reset all tulips
-    tulips.forEach(tulip => {
-        gsap.to(tulip.scale, {
-            x: 1,
-            y: 1,
-            z: 1,
-            duration: 0.2
-        });
-    });
 
     if (intersects.length > 0) {
         // Find the parent tulip group
@@ -548,25 +662,53 @@ function checkTulipHover() {
         }
 
         if (tulip.userData.isTulip) {
+            // Hover state: Tulip brightens slightly, Name appears only
             gsap.to(tulip.scale, {
-                x: 1.3,
-                y: 1.3,
-                z: 1.3,
+                x: 1.1,
+                y: 1.1,
+                z: 1.1,
                 duration: 0.2
             });
+
+            if (tulip.userData.petalMaterial) {
+                tulip.userData.petalMaterial.emissiveIntensity = 0.5;
+            }
+
+            showHoverLabel(tulip.userData.victim);
             document.body.style.cursor = 'pointer';
             return;
         }
     }
 
+    // Reset all tulips
+    tulips.forEach(tulip => {
+        if (tulip.userData.petalMaterial) {
+            // Only reset if not breathing phase or just let breathing handle it
+        }
+    });
+
+    hideHoverLabel();
     document.body.style.cursor = 'grab';
+}
+
+function showHoverLabel(victim) {
+    const currentLang = getCurrentLanguage();
+    hoverLabel.textContent = currentLang === 'fa' ? victim.name_fa : victim.name_en;
+    hoverLabel.style.left = `${(mouse.x + 1) * window.innerWidth / 2}px`;
+    hoverLabel.style.top = `${(-mouse.y + 1) * window.innerHeight / 2}px`;
+    hoverLabel.classList.add('visible');
+    hoverLabel.classList.remove('hidden');
+}
+
+function hideHoverLabel() {
+    hoverLabel.classList.remove('visible');
 }
 
 // ============================================
 // Victim Popup
 // ============================================
 
-function showVictimPopup(victim, x, y) {
+function showVictimPopup(victim, x, y, isFullStory = false) {
     // Store for language updates
     currentlyDisplayedVictim = victim;
 
@@ -590,27 +732,51 @@ function showVictimPopup(victim, x, y) {
     document.getElementById('victim-age').textContent = formatAge(victim.age);
     document.getElementById('victim-date').textContent = formatDateLocalized(victim.death_date);
 
-    // Handle Victim Image
+    // Handle Victim Image and Story (Only if isFullStory)
     const imageContainer = document.getElementById('victim-image-container');
     const imageEl = document.getElementById('victim-image');
 
-    if (victim.image_url) {
-        // If it's a Supabase storage path or a full URL
-        const imageUrl = victim.image_url.startsWith('http')
-            ? victim.image_url
-            : `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/victim-images/${victim.image_url}`;
+    // Add story text element if it doesn't exist
+    let storyEl = document.getElementById('victim-story');
+    if (!storyEl) {
+        storyEl = document.createElement('p');
+        storyEl.id = 'victim-story';
+        storyEl.className = 'victim-story';
+        document.querySelector('.victim-info').appendChild(storyEl);
+    }
 
-        imageEl.src = imageUrl;
-        imageContainer.classList.remove('hidden');
+    if (isFullStory) {
+        victimPopup.classList.add('full-story');
+        if (victim.image_url) {
+            const imageUrl = victim.image_url.startsWith('http')
+                ? victim.image_url
+                : `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/victim-images/${victim.image_url}`;
+            imageEl.src = imageUrl;
+            imageContainer.classList.remove('hidden');
+        } else {
+            imageContainer.classList.add('hidden');
+        }
+
+        storyEl.textContent = currentLang === 'fa' ? (victim.story_fa || "") : (victim.story_en || "");
+        storyEl.classList.remove('hidden');
     } else {
+        victimPopup.classList.remove('full-story');
         imageContainer.classList.add('hidden');
+        storyEl.classList.add('hidden');
     }
 
 
     // Position popup
     const popup = victimPopup;
-    popup.style.left = `${Math.min(x + 20, window.innerWidth - 320)}px`;
-    popup.style.top = `${Math.min(y - 20, window.innerHeight - 200)}px`;
+    if (!isFullStory) {
+        popup.style.left = `${Math.min(x + 20, window.innerWidth - 320)}px`;
+        popup.style.top = `${Math.min(y - 20, window.innerHeight - 200)}px`;
+    } else {
+        // Center for full story
+        popup.style.left = '50%';
+        popup.style.top = '50%';
+        popup.style.transform = 'translate(-50%, -50%) scale(1)';
+    }
 
     // Show popup
     popup.classList.remove('hidden');
@@ -654,8 +820,11 @@ function updateVictimPopupLanguage() {
     document.getElementById('victim-age').textContent = formatAge(victim.age);
     document.getElementById('victim-date').textContent = formatDateLocalized(victim.death_date);
 
-    // Image logic remains the same (handled in showVictimPopup)
-
+    // Update story if visible
+    const storyEl = document.getElementById('victim-story');
+    if (storyEl && !storyEl.classList.contains('hidden')) {
+        storyEl.textContent = currentLang === 'fa' ? (victim.story_fa || "") : (victim.story_en || "");
+    }
 }
 
 function formatDate(dateStr) {
@@ -738,12 +907,21 @@ function animate() {
     // Update controls
     controls.update();
 
-    // Subtle tulip sway animation
+    // Subtle tulip sway and breathing animation
     tulips.forEach((tulip, i) => {
         if (tulip.scale.x > 0.5) { // Only animate if visible
             const swayAmount = 0.02;
             tulip.rotation.x = Math.sin(time * 1.5 + i * 0.1) * swayAmount;
             tulip.rotation.z = Math.cos(time * 1.2 + i * 0.15) * swayAmount;
+
+            // Breathing (scale)
+            const breathing = 1.0 + Math.sin(time * 0.5 + i * 0.5) * 0.05;
+            tulip.scale.set(breathing, breathing, breathing);
+
+            // Breathing (glow/opacity)
+            if (tulip.userData.petalMaterial) {
+                tulip.userData.petalMaterial.emissiveIntensity = 0.1 + Math.sin(time * 0.5 + i * 0.5) * 0.05;
+            }
         }
     });
 

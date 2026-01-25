@@ -420,6 +420,28 @@ function geoToMapPosition(lon, lat) {
 // Tulip Creation
 // ============================================
 
+/**
+ * Create a radial gradient texture for the glow halo
+ */
+function createGlowTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const context = canvas.getContext('2d');
+    const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 50, 50, 1)');
+    gradient.addColorStop(0.2, 'rgba(255, 0, 0, 0.5)');
+    gradient.addColorStop(0.5, 'rgba(150, 0, 0, 0.2)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 64, 64);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+}
+
+const glowTexture = createGlowTexture();
+
 function createTulip(victim, position) {
     const group = new THREE.Group();
 
@@ -525,9 +547,30 @@ function createTulip(victim, position) {
     core.position.y = 0.35;
     petalGroup.add(core);
 
-    // Store references for breathing animation
-    group.userData.bulb = petalGroup;
-    group.userData.petalMaterial = petalMaterial;
+    // Set constant emissive intensity for steady glow
+    petalMaterial.emissiveIntensity = 0.5;
+
+    // Add glowing halo light around the tulip flower
+    const glowMaterial = new THREE.SpriteMaterial({
+        map: glowTexture,
+        color: 0xff3333,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0.4
+    });
+    const halo = new THREE.Sprite(glowMaterial);
+    halo.scale.set(1.8, 1.8, 1.8);
+    halo.position.y = 1.6; // Slightly above core
+    group.add(halo);
+
+    // Store references
+    group.userData = {
+        victim,
+        isTulip: true,
+        bulb: petalGroup,
+        petalMaterial: petalMaterial,
+        halo: halo
+    };
 
     group.add(petalGroup);
 
@@ -536,9 +579,6 @@ function createTulip(victim, position) {
 
     // Start with zero scale for animation
     group.scale.set(0, 0, 0);
-
-    // Store victim data
-    group.userData = { victim, isTulip: true };
 
     return group;
 }
@@ -1297,23 +1337,8 @@ function animate() {
     // Update controls
     controls.update();
 
-    // Subtle tulip sway and breathing animation
-    tulips.forEach((tulip, i) => {
-        if (tulip.scale.x > 0.5) { // Only animate if visible
-            const swayAmount = 0.02;
-            tulip.rotation.x = Math.sin(time * 1.5 + i * 0.1) * swayAmount;
-            tulip.rotation.z = Math.cos(time * 1.2 + i * 0.15) * swayAmount;
+    // Tulips are static glowing presences (no animation)
 
-            // Breathing (scale)
-            const breathing = 1.0 + Math.sin(time * 0.5 + i * 0.5) * 0.05;
-            tulip.scale.set(breathing, breathing, breathing);
-
-            // Breathing (glow/opacity)
-            if (tulip.userData.petalMaterial) {
-                tulip.userData.petalMaterial.emissiveIntensity = 0.1 + Math.sin(time * 0.5 + i * 0.5) * 0.05;
-            }
-        }
-    });
 
     // Update map shaders uTime
     if (iranMapGroup) {

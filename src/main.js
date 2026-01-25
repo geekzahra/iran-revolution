@@ -359,7 +359,7 @@ async function createTulips() {
     activeVictims.forEach((victim, index) => {
 
         // Get city coordinates
-        const city = getCityById(victim.city);
+        const city = getCityById(victim.city_id);
         if (!city) return;
 
         // Convert geo coordinates to map position
@@ -570,7 +570,7 @@ function showVictimPopup(victim, x, y) {
     // Store for language updates
     currentlyDisplayedVictim = victim;
 
-    const city = getCityById(victim.city);
+    const city = getCityById(victim.city_id);
     const currentLang = getCurrentLanguage();
 
     // Update popup content based on language
@@ -578,27 +578,27 @@ function showVictimPopup(victim, x, y) {
     const victimNameEnEl = document.getElementById('victim-name-en');
 
     if (currentLang === 'fa') {
-        victimNameEl.textContent = victim.nameFa || victim.name;
+        victimNameEl.textContent = victim.name_fa;
         victimNameEnEl.style.display = 'none';
-        document.getElementById('victim-city').textContent = city ? city.nameFa : victim.city;
+        document.getElementById('victim-city').textContent = city ? city.nameFa : victim.city_name_fa;
     } else {
-        victimNameEl.textContent = victim.name;
+        victimNameEl.textContent = victim.name_en;
         victimNameEnEl.style.display = 'none';
-        document.getElementById('victim-city').textContent = city ? `${city.name}` : victim.city;
+        document.getElementById('victim-city').textContent = city ? `${city.name}` : victim.city_name_en;
     }
 
     document.getElementById('victim-age').textContent = formatAge(victim.age);
-    document.getElementById('victim-date').textContent = formatDateLocalized(victim.date);
+    document.getElementById('victim-date').textContent = formatDateLocalized(victim.death_date);
 
     // Handle Victim Image
     const imageContainer = document.getElementById('victim-image-container');
     const imageEl = document.getElementById('victim-image');
 
-    if (victim.imageUrl) {
+    if (victim.image_url) {
         // If it's a Supabase storage path or a full URL
-        const imageUrl = victim.imageUrl.startsWith('http')
-            ? victim.imageUrl
-            : `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/victim-images/${victim.imageUrl}`;
+        const imageUrl = victim.image_url.startsWith('http')
+            ? victim.image_url
+            : `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/victim-images/${victim.image_url}`;
 
         imageEl.src = imageUrl;
         imageContainer.classList.remove('hidden');
@@ -634,7 +634,7 @@ function updateVictimPopupLanguage() {
     }
 
     const victim = currentlyDisplayedVictim;
-    const city = getCityById(victim.city);
+    const city = getCityById(victim.city_id);
     const currentLang = getCurrentLanguage();
 
     // Update popup content based on new language
@@ -642,17 +642,17 @@ function updateVictimPopupLanguage() {
     const victimNameEnEl = document.getElementById('victim-name-en');
 
     if (currentLang === 'fa') {
-        victimNameEl.textContent = victim.nameFa || victim.name;
+        victimNameEl.textContent = victim.name_fa;
         victimNameEnEl.style.display = 'none';
-        document.getElementById('victim-city').textContent = city ? city.nameFa : victim.city;
+        document.getElementById('victim-city').textContent = city ? city.nameFa : victim.city_name_fa;
     } else {
-        victimNameEl.textContent = victim.name;
+        victimNameEl.textContent = victim.name_en;
         victimNameEnEl.style.display = 'none';
-        document.getElementById('victim-city').textContent = city ? `${city.name}` : victim.city;
+        document.getElementById('victim-city').textContent = city ? `${city.name}` : victim.city_name_en;
     }
 
     document.getElementById('victim-age').textContent = formatAge(victim.age);
-    document.getElementById('victim-date').textContent = formatDateLocalized(victim.date);
+    document.getElementById('victim-date').textContent = formatDateLocalized(victim.death_date);
 
     // Image logic remains the same (handled in showVictimPopup)
 

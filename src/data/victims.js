@@ -59,7 +59,7 @@ export const cities = [
     { id: 'pareh-sar', name: 'Pareh Sar', nameFa: 'پرهسر', coordinates: [49.0653, 37.6036], province: 'Gilan' },
     { id: 'arak', name: 'Arak', nameFa: 'اراک', coordinates: [49.6892, 34.0917], province: 'Markazi' },
     { id: 'shazand', name: 'Shazand', nameFa: 'شازند', coordinates: [49.4009, 33.9346], province: 'Markazi' },
-    { id: 'abadan', name: 'Abadan', nameFa: 'آبادان', coordinates: [48.2917, 30.3333], province: 'Khuzestan' },
+    { id: 'abadan', name: 'Abadan', nameFa: 'آبادان', coordinates: [48.3043, 30.3392], province: 'Khuzestan' },
     { id: 'mehran', name: 'Mehran', nameFa: 'مهران', coordinates: [46.1667, 33.1167], province: 'Ilam' },
     { id: 'mobarakeh', name: 'Mobarakeh', nameFa: 'مبارکه', coordinates: [51.5042, 32.3475], province: 'Isfahan' },
     { id: 'shahreza', name: 'Shahreza', nameFa: 'شهرضا', coordinates: [51.8594, 32.0122], province: 'Isfahan' },

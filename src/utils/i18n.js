@@ -58,7 +58,11 @@ const translations = {
         'onboarding.sound.title': 'This experience includes audio',
         'onboarding.sound.unmute': 'Unmute',
         'onboarding.sound.mute': 'Stay Muted',
-        'onboarding.start': 'Enter'
+        'onboarding.start': 'Enter',
+
+        // Search
+        'search.placeholder': 'Search by name or last name...',
+        'search.noResults': 'No one found by that name'
     },
     fa: {
         // Page title
@@ -110,7 +114,11 @@ const translations = {
         'onboarding.sound.title': 'این تجربه شامل صدا است',
         'onboarding.sound.unmute': 'پخش صدا',
         'onboarding.sound.mute': 'بدون صدا',
-        'onboarding.start': 'ورود'
+        'onboarding.start': 'ورود',
+
+        // Search
+        'search.placeholder': 'جستجو با نام یا نام خانوادگی...',
+        'search.noResults': 'کسی با این نام پیدا نشد'
     }
 };
 
@@ -193,6 +201,13 @@ export function updatePageTranslations(lang = null) {
     elements.forEach(el => {
         const key = el.getAttribute('data-i18n');
         el.textContent = t(key, currentLang);
+    });
+
+    // Update all elements with data-i18n-placeholder attribute
+    const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+    placeholderElements.forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.setAttribute('placeholder', t(key, currentLang));
     });
 
     // Update language toggle button text

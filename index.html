@@ -86,6 +86,33 @@
     <p class="subtitle" data-i18n="intro.date">Iran, January 2026</p>
   </div>
 
+  <!-- Search Feature -->
+  <div id="search-container" class="hidden">
+    <div class="search-wrapper">
+      <div class="search-input-box">
+        <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <circle cx="12" cy="12" r="8" />
+          <line x1="22" y1="22" x2="17.65" y2="17.65" />
+        </svg>
+        <input type="text" id="search-input" data-i18n-placeholder="search.placeholder" autocomplete="off">
+        <button id="clear-search" class="hidden" aria-label="Clear search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <button id="close-search-mobile" class="hidden" aria-label="Close search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div id="search-results" class="hidden"></div>
+    </div>
+  </div>
+
   <!-- Controls Hint -->
   <div id="controls-hint">
     <span data-i18n="controls.drag">Drag to rotate</span>

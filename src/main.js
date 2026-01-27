@@ -84,6 +84,12 @@ const ambientAudio = document.getElementById('ambient-audio');
 const langToggle = document.getElementById('lang-toggle');
 const hoverLabel = document.getElementById('victim-hover-label');
 const memorialTagline = document.getElementById('memorial-tagline');
+const searchContainer = document.getElementById('search-container');
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const clearSearchBtn = document.getElementById('clear-search');
+const closeSearchMobileBtn = document.getElementById('close-search-mobile');
+const searchInputBox = document.querySelector('.search-input-box');
 
 // Onboarding Elements
 const onboardingOverlay = document.getElementById('onboarding-overlay');
@@ -709,6 +715,8 @@ async function transitionTo3D() {
         const tagline = document.getElementById('memorial-tagline');
         tagline.classList.remove('hidden');
         tagline.classList.add('visible');
+
+        searchContainer.classList.remove('hidden');
     }, 5000);
 }
 
@@ -770,6 +778,9 @@ function setupEventListeners() {
 
     // Initialize sound state
     updateSoundUI();
+
+    // Initialize search
+    setupSearch();
 }
 
 function onWindowResize() {
@@ -1099,6 +1110,139 @@ function updateSoundUI() {
     const isEnabled = getSoundEnabled();
     document.getElementById('sound-on').classList.toggle('hidden', !isEnabled);
     document.getElementById('sound-off').classList.toggle('hidden', isEnabled);
+}
+
+// ============================================
+// Search Logic
+// ============================================
+
+function setupSearch() {
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+
+        if (query.length > 0) {
+            clearSearchBtn.classList.remove('hidden');
+            performSearch(query);
+        } else {
+            clearSearchBtn.classList.add('hidden');
+            hideSearchResults();
+        }
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        hideSearchResults();
+        searchInput.focus();
+    });
+
+    // Close results when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#search-container')) {
+            hideSearchResults();
+            if (window.innerWidth <= 768) {
+                searchContainer.classList.remove('search-active');
+            }
+        }
+    });
+
+    // Mobile specific toggle
+    searchInputBox.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && !searchContainer.classList.contains('search-active')) {
+            searchContainer.classList.add('search-active');
+            searchInput.focus();
+        }
+    });
+
+    closeSearchMobileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        searchContainer.classList.remove('search-active');
+        hideSearchResults();
+    });
+}
+
+function performSearch(query) {
+    const currentLang = getCurrentLanguage();
+
+    const results = victims.filter(victim => {
+        const nameEn = (victim.name_en || '').toLowerCase();
+        const nameFa = (victim.name_fa || '').toLowerCase();
+        return nameEn.includes(query) || nameFa.includes(query);
+    });
+
+    displaySearchResults(results.slice(0, 10)); // Limit to 10 results
+}
+
+function displaySearchResults(results) {
+    searchResults.innerHTML = '';
+
+    if (results.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results';
+        noResults.textContent = t('search.noResults');
+        searchResults.appendChild(noResults);
+    } else {
+        results.forEach(victim => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+
+            const city = getCityById(victim.city_id);
+            const currentLang = getCurrentLanguage();
+            const displayName = currentLang === 'fa' ? victim.name_fa : victim.name_en;
+            const displayCity = currentLang === 'fa' ? (city ? city.nameFa : victim.city_name_fa) : (city ? city.name : victim.city_name_en);
+            const displayAge = formatAge(victim.age);
+
+            item.innerHTML = `
+                <div class="result-name">${displayName}</div>
+                <div class="result-meta">${displayCity} • ${displayAge}</div>
+            `;
+
+            item.addEventListener('click', () => {
+                selectVictimFromSearch(victim);
+            });
+
+            searchResults.appendChild(item);
+        });
+    }
+
+    searchResults.classList.remove('hidden');
+    searchResults.classList.add('visible');
+}
+
+function hideSearchResults() {
+    searchResults.classList.remove('visible');
+    setTimeout(() => {
+        if (!searchResults.classList.contains('visible')) {
+            searchResults.classList.add('hidden');
+        }
+    }, 300);
+}
+
+function selectVictimFromSearch(victim) {
+    // Find the tulip associated with this victim
+    const tulip = tulips.find(t => t.userData.victim.id === victim.id);
+
+    if (tulip) {
+        // Clear search UI
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        hideSearchResults();
+
+        // Close mobile search
+        if (window.innerWidth <= 768) {
+            searchContainer.classList.remove('search-active');
+        }
+
+        // Interaction flow
+        zoomedTulip = tulip;
+        zoomToTulip(tulip);
+
+        // Show full card after small delay to allow camera transition
+        setTimeout(() => {
+            showVictimPopup(victim, window.innerWidth / 2, window.innerHeight / 2, true);
+            glowNameForVictim(victim.id);
+        }, 1000);
+    }
 }
 
 // ============================================

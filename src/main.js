@@ -946,6 +946,7 @@ function checkTulipHover() {
 }
 
 function showHoverLabel(victim) {
+    if (window.innerWidth <= 768) return; // Do not show hover labels on mobile
     const currentLang = getCurrentLanguage();
     hoverLabel.textContent = currentLang === 'fa' ? victim.name_fa : victim.name_en;
     hoverLabel.style.left = `${(mouse.x + 1) * window.innerWidth / 2}px`;
@@ -1022,14 +1023,23 @@ function showVictimPopup(victim, x, y, isFullStory = false) {
 
     // Position popup
     const popup = victimPopup;
-    if (!isFullStory) {
-        popup.style.left = `${Math.min(x + 20, window.innerWidth - 320)}px`;
-        popup.style.top = `${Math.min(y - 20, window.innerHeight - 200)}px`;
-    } else {
-        // Center for full story
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile || isFullStory) {
+        // Center for mobile OR for full story on desktop
         popup.style.left = '50%';
         popup.style.top = '50%';
         popup.style.transform = 'translate(-50%, -50%) scale(1)';
+        // Reset manual position styles if they were set previously
+        if (isMobile) {
+            popup.style.right = 'auto';
+            popup.style.bottom = 'auto';
+        }
+    } else {
+        // Following click position on desktop (basic info)
+        popup.style.left = `${Math.min(x + 20, window.innerWidth - 320)}px`;
+        popup.style.top = `${Math.min(y - 20, window.innerHeight - 200)}px`;
+        popup.style.transform = 'scale(1)';
     }
 
     // Show popup

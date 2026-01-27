@@ -69,6 +69,9 @@ let currentlyHoveredTulip = null; // Track hovered tulip for optimization
 let mapShaderMaterials = []; // For optimized uTime updates
 let tulipHitboxes = []; // For optimized raycasting
 let isHoverUpdatePending = false; // For raycasting throttling
+let isDragging = false; // Track dragging state for performance
+let lastParallaxUpdate = 0; // Throttle parallax updates
+const PARALLAX_THROTTLE_MS = 32; // ~30fps for parallax (saves CPU)
 
 // DOM Elements
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -249,13 +252,17 @@ function setupRenderer() {
 function setupControls() {
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    controls.dampingFactor = 0.12; // Faster response (was 0.05)
     controls.minDistance = 30;
     controls.maxDistance = 200;
     controls.maxPolarAngle = Math.PI / 2.2;
     controls.minPolarAngle = Math.PI / 6;
     controls.enablePan = false;
     controls.enabled = false; // Disabled until loading complete
+
+    // Track drag state for performance optimization
+    controls.addEventListener('start', () => { isDragging = true; });
+    controls.addEventListener('end', () => { isDragging = false; });
 }
 
 function setupLighting() {
@@ -796,14 +803,16 @@ function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    // Update names background parallax
-    updateNamesParallax(event.clientX, event.clientY);
+    // Skip heavy operations while dragging for smooth performance
+    if (isDragging) return;
 
-    // Throttle interaction logic
+    // Throttle hover detection
     if (controls.enabled && !isHoverUpdatePending) {
         isHoverUpdatePending = true;
         requestAnimationFrame(() => {
-            checkTulipHover();
+            if (!isDragging) { // Double-check not dragging
+                checkTulipHover();
+            }
             isHoverUpdatePending = false;
         });
     }
@@ -1530,19 +1539,19 @@ function animateStatistics() {
 function animate() {
     requestAnimationFrame(animate);
 
-    const time = performance.now() * 0.001;
-
-    // Update controls
+    // Update controls (must always run for smooth damping)
     controls.update();
 
-    // Tulips are static glowing presences (no animation)
-
-
-    // Update map shaders uTime - Optimized loop (no traversal)
-    for (let i = 0; i < mapShaderMaterials.length; i++) {
-        const mat = mapShaderMaterials[i];
-        if (mat.userData && mat.userData.shader) {
-            mat.userData.shader.uniforms.uTime.value = time;
+    // Skip shader updates while dragging - they don't affect visual appearance noticeably
+    if (!isDragging) {
+        const time = performance.now() * 0.001;
+        // Update map shaders uTime - Optimized loop
+        const len = mapShaderMaterials.length;
+        for (let i = 0; i < len; i++) {
+            const shader = mapShaderMaterials[i].userData?.shader;
+            if (shader) {
+                shader.uniforms.uTime.value = time;
+            }
         }
     }
 

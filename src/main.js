@@ -1025,21 +1025,27 @@ function showVictimPopup(victim, x, y, isFullStory = false) {
     const popup = victimPopup;
     const isMobile = window.innerWidth <= 768;
 
-    if (isMobile || isFullStory) {
-        // Center for mobile OR for full story on desktop
+    if (isMobile) {
+        // Fully centered on mobile
         popup.style.left = '50%';
         popup.style.top = '50%';
         popup.style.transform = 'translate(-50%, -50%) scale(1)';
-        // Reset manual position styles if they were set previously
-        if (isMobile) {
-            popup.style.right = 'auto';
-            popup.style.bottom = 'auto';
-        }
+        popup.style.right = 'auto';
+        popup.style.bottom = 'auto';
     } else {
-        // Following click position on desktop (basic info)
-        popup.style.left = `${Math.min(x + 20, window.innerWidth - 320)}px`;
-        popup.style.top = `${Math.min(y - 20, window.innerHeight - 200)}px`;
-        popup.style.transform = 'scale(1)';
+        // Desktop
+        popup.style.top = '50%';
+        if (isFullStory) {
+            // Full story on desktop: remains fully centered for prominence
+            popup.style.left = '50%';
+            popup.style.transform = 'translate(-50%, -50%) scale(1)';
+        } else {
+            // Basic card on desktop: vertically centered, horizontally following click
+            popup.style.left = `${Math.min(x + 20, window.innerWidth - 320)}px`;
+            popup.style.transform = 'translateY(-50%) scale(1)';
+        }
+        popup.style.right = 'auto';
+        popup.style.bottom = 'auto';
     }
 
     // Show popup

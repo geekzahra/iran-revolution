@@ -13,7 +13,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import gsap from 'gsap';
-import { cities, victims, getVictimsByCity, getCityById, statistics, getSupabaseVictims } from './data/victims.js';
+import { cities, victims, getVictimsByCity, getCityById, statistics, getSupabaseVictims, getLatestNamesForBackground } from './data/victims.js';
 import { initVisit, markCityViewed, getSoundEnabled, setSoundEnabled } from './utils/persistence.js';
 import { initI18n, toggleLanguage, getCurrentLanguage, formatDateLocalized, formatAge, t, setLanguage } from './utils/i18n.js';
 import { NarrativeManager } from './utils/narrative.js';
@@ -613,8 +613,11 @@ async function createTulips() {
     // Fetch victims from Supabase (falls back to local data)
     const activeVictims = await getSupabaseVictims();
 
-    // Initialize names background with victim data
-    initNamesBackground(activeVictims);
+    // Fetch only the latest 250 names for the background
+    const backgroundVictims = await getLatestNamesForBackground();
+
+    // Initialize names background with limited victim data
+    initNamesBackground(backgroundVictims);
 
     // Create tulips for each victim
     activeVictims.forEach((victim, index) => {

@@ -1477,16 +1477,15 @@ body {
   right: 2rem;
 }
 
-[dir="rtl"] #search-container {
-  right: auto;
-  left: 5rem;
-}
+/* Removed desktop search-container RTL override to keep it centered */
+
 
 @media (max-width: 768px) {
   [dir="rtl"] #search-container {
     right: auto;
     left: 5rem;
     width: 48px;
+    transform: none;
   }
 
   [dir="rtl"] #search-container.search-active {

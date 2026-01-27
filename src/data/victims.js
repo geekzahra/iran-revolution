@@ -132,4 +132,22 @@ export const getSupabaseVictims = async () => {
         console.error('Error fetching victims from Supabase:', error);
         return [];
     }
+};/**
+ * Fetches only the latest 250 records for the background names
+ * @returns {Promise<Array>} List of latest victims
+ */
+export const getLatestNamesForBackground = async () => {
+    try {
+        const { data, error } = await supabase
+            .from('victims')
+            .select('id, name_en, name_fa')
+            .order('created_at', { ascending: false })
+            .limit(250);
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('Error fetching latest names for background:', error);
+        return [];
+    }
 };

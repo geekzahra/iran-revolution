@@ -1201,6 +1201,12 @@ body {
   user-select: none;
 }
 
+/* Use Vazirmatn font for names in Persian/RTL mode */
+[dir="rtl"] .names-row-content span {
+  font-family: 'Vazirmatn', var(--font-persian);
+  letter-spacing: 0.05em;
+}
+
 /* Slight variation layers - some rows are slightly more visible */
 .names-row.layer-1 .names-row-content span {
   color: rgba(220, 220, 230, 0.065);

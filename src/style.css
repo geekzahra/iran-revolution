@@ -2,6 +2,63 @@
    GEOGRAPHY OF ABSENCE - MEMORIAL STYLES
    =========================================== */
 
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dibaj';
+  src: url('/fonts/dibaj/woff2/DibajFaNum-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+}
+
+
 /* Reset & Base */
 *,
 *::before,
@@ -21,8 +78,8 @@
   --color-accent-glow: rgba(139, 0, 0, 0.3);
   --color-ember: #ff4500;
   --color-portrait-rim: rgba(255, 0, 0, 0.4);
-  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-persian: 'Vazirmatn', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont;
+  --font-persian: 'Dibaj', 'Vazirmatn';
   --transition-slow: 1.5s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-medium: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: 0.3s ease;
@@ -60,12 +117,13 @@ body {
   height: 100%;
   overflow: hidden;
   background: var(--color-bg);
-  font-family: var(--font-persian);
-  /* Vazirmatn as primary */
+  font-family: var(--font-primary), var(--font-persian), sans-serif;
+  /* Use Inter first, then Dibaj, then generic sans-serif */
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 
 /* ===========================================
    LOADING OVERLAY
@@ -166,12 +224,12 @@ body {
 
 /* =link language-specific typography for onboarding */
 [dir="rtl"] .onboarding-step h2 {
-  font-family: var(--font-persian);
+  font-family: var(--font-primary), var(--font-persian), sans-serif;
   direction: rtl;
 }
 
 [dir="rtl"] .onboarding-btn {
-  font-family: var(--font-persian);
+  font-family: var(--font-primary), var(--font-persian), sans-serif;
   direction: rtl;
 }
 
@@ -689,7 +747,7 @@ body {
 
 [dir="rtl"] .search-result-item {
   text-align: right;
-  font-family: var(--font-persian);
+  font-family: var(--font-primary), var(--font-persian), sans-serif;
 }
 
 .no-results {

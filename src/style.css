@@ -1984,6 +1984,7 @@ body {
 }
 
 .testimony-line-wrapper {
+  grid-area: 1 / 1;
   overflow: hidden;
   width: 100%;
   text-align: center;
@@ -1991,8 +1992,8 @@ body {
 
 .testimony-line {
   font-family: var(--font-persian);
-  font-size: clamp(1.4rem, 4vw, 2.6rem);
-  /* Increased slightly for single line impact */
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  /* Reduced from clamp(1.4rem, 4vw, 2.6rem) */
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.3);
   white-space: nowrap;
@@ -2009,9 +2010,9 @@ body {
 }
 
 .testimony-line.dimmed {
-  color: rgba(255, 255, 255, 0.1);
-  filter: blur(2px);
-  transform: scale(0.98);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px);
 }
 
 /* Impact Stack */
@@ -2203,9 +2204,11 @@ body {
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .testimony-portrait {
-    width: clamp(90px, 11.25vw, 135px);
-    height: clamp(90px, 11.25vw, 135px);
-    margin-bottom: 1rem;
+    width: clamp(180px, 22.5vw, 270px);
+    height: auto;
+    min-height: auto;
+    /* Doubled size for mobile impact */
+    margin-bottom: 1.5rem;
   }
 
   .testimony-line {

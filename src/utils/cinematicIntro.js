@@ -2,13 +2,11 @@
  * Cinematic Intro Engine for Geography of Absence
  * "47 Years. One Voice." - Expanded Cut
  * 
- * Manages the 6-scene intro sequence with dynamic audio layers:
+ * Manages the cinematic intro sequence:
  * - Scene 0: "The Testimony" (Vahid Afkari prison audio)
- * - Scene 1: The Beginning (text reveal)
- * - Scene 2: The Roots (years timeline)
- * - Scene 3: 2026 (crack effect)
- * - Scene 4: The Meaning of the Tulip (martyrdom)
- * - Scene 5: Transition to Map (land remembers)
+ * - Scene 1: Protests Timeline (Interactive)
+ * - Scene 2: The Meaning of the Tulip (Martyrdom)
+ * - Scene 3: Transition to Map (Land remembers)
  */
 
 import gsap from 'gsap';
@@ -89,13 +87,7 @@ class TestimonyParticles {
     }
 }
 
-// Audio layer volumes for each scene
-const AUDIO_LAYERS = {
-    0: { memory: 0.1, resistance: 0.05, silence: 0.3 },
-    1: { memory: 0.4, resistance: 0.3, silence: 0.1 },  // Timeline scene
-    2: { memory: 0.4, resistance: 0.05, silence: 0.3 }, // Tulip scene
-    3: { memory: 0.2, resistance: 0.3, silence: 0.1 }  // Transition scene
-};
+
 
 const PROTESTS_DATA = {
     fa: [
@@ -202,36 +194,12 @@ export class CinematicIntro {
         this.scrollThreshold = 1500; // Total "scroll units" to progress to next scene
 
         // Audio elements
-        this.audioLayers = {
-            memory: document.getElementById('audio-memory-layer'),
-            resistance: document.getElementById('audio-resistance-layer'),
-            silence: document.getElementById('audio-silence-layer')
-        };
+        this.audioLayers = {};
 
         // Scene-specific audio
         this.sceneAudio = {
             scene0: {
-                vahid: document.getElementById('audio-scene0-mother'), // User renamed to vahid in HTML, check ID
-                chant: document.getElementById('audio-scene0-chant'),
-                wind: document.getElementById('audio-scene0-wind')
-            },
-            scene1: {
-                azadi: document.getElementById('audio-scene1-azadi'),
-                protest: document.getElementById('audio-scene1-protest')
-            },
-            scene2: {
-                chant: document.getElementById('audio-scene2-chant'),
-                woman: document.getElementById('audio-scene2-woman'),
-                father: document.getElementById('audio-scene2-father')
-            },
-            scene3: {
-                crowd: document.getElementById('audio-scene3-crowd')
-            },
-            scene4: {
-                narrator: document.getElementById('audio-scene4-narrator')
-            },
-            scene3: {
-                bass: document.getElementById('audio-scene5-bass')
+                vahid: document.getElementById('audio-scene0-mother')
             }
         };
 
@@ -417,25 +385,14 @@ export class CinematicIntro {
      * Update audio layer volumes
      */
     updateAudioLayers(sceneIndex) {
-        if (!getSoundEnabled()) return;
-        const layerVolumes = AUDIO_LAYERS[sceneIndex] || AUDIO_LAYERS[0];
-        Object.entries(layerVolumes).forEach(([name, volume]) => {
-            const audio = this.audioLayers[name];
-            if (audio) gsap.to(audio, { volume, duration: 2 });
-        });
+        // Layers removed as they were empty
     }
 
     /**
      * Start audio layers
      */
     startAudioLayers() {
-        Object.entries(this.audioLayers).forEach(([name, audio]) => {
-            if (audio) {
-                audio.volume = 0;
-                audio.play().catch(e => console.warn(`Audio layer ${name} failed:`, e));
-            }
-        });
-        this.updateAudioLayers(0);
+        // Layers removed as they were empty
     }
 
     /**
@@ -848,9 +805,7 @@ export class CinematicIntro {
         });
 
         if (getSoundEnabled()) {
-            Object.values(this.audioLayers).forEach(audio => {
-                if (audio) gsap.to(audio, { volume: 0, duration: 2, onComplete: () => audio.pause() });
-            });
+            // Audio layers removed
         }
     }
 }

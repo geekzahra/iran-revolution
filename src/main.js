@@ -16,7 +16,7 @@ import gsap from 'gsap';
 import { cities, victims, getVictimsByCity, getCityById, statistics, getSupabaseVictims, getLatestNamesForBackground } from './data/victims.js';
 import { initVisit, markCityViewed, getSoundEnabled, setSoundEnabled } from './utils/persistence.js';
 import { initI18n, toggleLanguage, getCurrentLanguage, formatDateLocalized, formatAge, t, setLanguage } from './utils/i18n.js';
-import { NarrativeManager } from './utils/narrative.js';
+import { CinematicIntro } from './utils/cinematicIntro.js';
 
 // ============================================
 // Configuration
@@ -60,7 +60,7 @@ let raycaster, mouse;
 let selectedTulip = null;
 let visitState;
 let currentlyDisplayedVictim = null; // Track current victim for language updates
-let narrative;
+let cinematicIntro;
 let zoomedTulip = null;
 let lastClickTime = 0;
 let currentlyHoveredTulip = null; // Track hovered tulip for optimization
@@ -114,9 +114,9 @@ async function init() {
     // Initialize visit tracking
     visitState = initVisit();
 
-    // Initialize Narrative Manager
-    narrative = new NarrativeManager();
-    narrative.onComplete = () => {
+    // Initialize Cinematic Intro
+    cinematicIntro = new CinematicIntro();
+    cinematicIntro.onComplete = () => {
         transitionTo3D();
     };
 
@@ -171,12 +171,6 @@ function setupOnboarding() {
         updateSoundUI();
         finishOnboarding();
     });
-
-    btnSoundOff.addEventListener('click', () => {
-        setSoundEnabled(false);
-        updateSoundUI();
-        finishOnboarding();
-    });
 }
 
 function goToOnboardingStep(nextStep) {
@@ -201,15 +195,11 @@ async function finishOnboarding() {
     // Fade out onboarding overlay
     onboardingOverlay.classList.add('fade-out');
 
-    // Start narrative engine - don't await to avoid blocking transition
-    narrative.init();
+    // Start cinematic intro - the new 6-scene experience
+    cinematicIntro.init();
 
-    // Play initial subtle audio if enabled
-    if (getSoundEnabled()) {
-        ambientAudio.volume = 0;
-        ambientAudio.play().catch(e => console.warn('Audio auto-play prevented:', e));
-        gsap.to(ambientAudio, { volume: 0.1, duration: 2 }); // Very quiet wind-like start
-    }
+    // Note: Ambient audio is handled by the cinematic intro's audio layers
+    // The main ambient audio will start after the intro completes in transitionTo3D()
 
     // Completely remove overlay after transition to ensure no click interference
     setTimeout(() => {
@@ -686,14 +676,16 @@ async function startLoadingSequence() {
 }
 
 /**
- * Transition from Narrative to 3D World (Act III)
+ * Transition from Cinematic Intro to 3D World
  */
 async function transitionTo3D() {
-    // 1. Narrative faints away
-    narrative.transitionToMap();
+    // 1. Cinematic intro handles its own fadeout
+    // (already completed before this callback is triggered)
 
-    // 2. Audio fades in/deepens
+    // 2. Audio fades in/deepens (start main ambient audio)
     if (getSoundEnabled()) {
+        ambientAudio.volume = 0;
+        ambientAudio.play().catch(e => console.warn('Audio auto-play prevented:', e));
         gsap.to(ambientAudio, { volume: 0.5, duration: 4 });
     }
 

@@ -55,7 +55,7 @@ const translations = {
 
         // Onboarding
         'onboarding.lang.title': 'Choose your language',
-        'onboarding.sound.title': 'This experience includes audio',
+        'onboarding.sound.title': 'This experience includes audio. Please click the button below and increase your volume.',
         'onboarding.sound.unmute': 'Unmute',
         'onboarding.sound.mute': 'Stay Muted',
         'onboarding.start': 'Enter',
@@ -111,7 +111,7 @@ const translations = {
 
         // Onboarding
         'onboarding.lang.title': 'زبان خود را انتخاب کنید',
-        'onboarding.sound.title': 'این تجربه شامل صدا است',
+        'onboarding.sound.title': 'این تجربه شامل صدا است. لطفا روی دکمه زیر کلیک کنید و صدا را زیاد کنید.',
         'onboarding.sound.unmute': 'پخش صدا',
         'onboarding.sound.mute': 'بدون صدا',
         'onboarding.start': 'ورود',

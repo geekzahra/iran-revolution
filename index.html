@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Vazirmatn:wght@300;400;500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Vazirmatn:wght@300;400;500;700;900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css">
   <link rel="icon" type="image/png" href="/favicon.png">
@@ -30,7 +30,8 @@
     <div class="onboarding-content">
       <!-- Step 1: Language -->
       <div id="onboarding-step-lang" class="onboarding-step">
-        <h2 data-i18n="onboarding.lang.title">Choose your language</h2>
+        <h2 class="onboarding-lang-en">Choose your language</h2>
+        <h2 class="onboarding-lang-fa">زبان خود را انتخاب کنید</h2>
         <div class="onboarding-buttons">
           <button id="btn-lang-en" class="onboarding-btn">English</button>
           <button id="btn-lang-fa" class="onboarding-btn">فارسی</button>
@@ -49,29 +50,180 @@
             </svg>
             <span data-i18n="onboarding.sound.unmute">Unmute</span>
           </button>
-          <button id="btn-sound-off" class="onboarding-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-            <span data-i18n="onboarding.sound.mute">Stay Muted</span>
-          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Narrative Layer (Acts I & II) -->
-  <div id="narrative-layer">
-    <div class="narrative-content">
-      <div id="narrative-text-container">
-        <span id="narrative-text"></span>
-        <span id="narrative-cursor">|</span>
+  <!-- Cinematic Intro Layer - "47 Years. One Voice." -->
+  <div id="cinematic-intro" class="hidden">
+    <!-- Scene 0: Absolute Darkness -->
+    <div class="intro-scene scene-0 active" data-scene="0">
+      <!-- Atmospheric Background -->
+      <div class="testimony-atmosphere">
+        <div class="atmosphere-vignette"></div>
+        <div class="atmosphere-grain"></div>
+        <div class="atmosphere-flicker"></div>
       </div>
-      <div id="scroll-hint" class="hidden">Scroll to remember</div>
+
+      <!-- Particle System -->
+      <canvas id="testimony-particles" class="testimony-particles"></canvas>
+
+      <div class="testimony-content">
+        <!-- Identity Header -->
+        <div class="testimony-identity" id="testimony-identity">
+          <div class="identity-name-container">
+            <span class="identity-name">Vahid Afkari</span>
+            <div class="name-underline"></div>
+          </div>
+          <div class="identity-meta-container">
+            <span class="identity-meta">Executed 2020</span>
+            <div class="meta-embers"></div>
+          </div>
+        </div>
+
+        <!-- Portrait Container -->
+        <div class="testimony-portrait" id="testimony-portrait">
+          <div class="portrait-glow"></div>
+          <div class="portrait-frame">
+            <div class="portrait-image">
+              <img src="/images/vahid-afkari.png" alt="Vahid Afkari">
+            </div>
+            <div class="portrait-overlay"></div>
+          </div>
+        </div>
+
+        <!-- Testimony Quote -->
+        <div class="testimony-quote" id="testimony-quote">
+          <div class="testimony-line-wrapper">
+            <p class="testimony-line" data-segment="1">I am not speaking only to Iran.</p>
+          </div>
+          <div class="testimony-line-wrapper">
+            <p class="testimony-line" data-segment="2">I speak to every human being</p>
+          </div>
+          <div class="testimony-line-wrapper">
+            <p class="testimony-line" data-segment="3">who claims humanity and carries even a trace of honor.</p>
+          </div>
+
+          <!-- Impact Final Line -->
+          <div class="impact-wrapper">
+            <div class="testimony-line impact vertical-stack" data-segment="4">
+              <span class="impact-word">Your</span>
+              <span class="impact-word">silence</span>
+              <span class="impact-word">means</span>
+              <span class="impact-word">supporting</span>
+              <span class="impact-word">oppression</span>
+              <span class="impact-word">and</span>
+              <span class="impact-word">the</span>
+              <span class="impact-word">oppressor.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Hint -->
+      <div class="scene-audio-hint">
+        <div class="audio-wave">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
     </div>
+
+    <!-- Scene 1: The Beginning -->
+    <div class="intro-scene scene-1" data-scene="1">
+      <div class="intro-text-wrapper">
+        <p class="intro-text-line" data-line="1">This did not begin in 2026.</p>
+        <p class="intro-text-line" data-line="2">It began 47 years ago.</p>
+        <p class="intro-text-line" data-line="3">With stolen freedom.</p>
+        <p class="intro-text-line" data-line="4">With silenced voices.</p>
+      </div>
+      <div class="heartbeat-pulse"></div>
+    </div>
+
+    <!-- Scene 2: The Roots (Years Timeline) -->
+    <div class="intro-scene scene-2" data-scene="2">
+      <div class="dust-particles" id="dust-particles"></div>
+      <div class="years-timeline">
+        <div class="year-item" data-year="1999">
+          <span class="year-number">1999</span>
+          <span class="year-title">Student Uprising</span>
+        </div>
+        <div class="year-item" data-year="2009">
+          <span class="year-number">2009</span>
+          <span class="year-title">Green Movement</span>
+        </div>
+        <div class="year-item" data-year="2019">
+          <span class="year-number">2019</span>
+          <span class="year-title">Bloody November</span>
+        </div>
+        <div class="year-item" data-year="2022">
+          <span class="year-number">2022</span>
+          <span class="year-title woman-life-freedom">Woman. Life. Freedom.</span>
+        </div>
+      </div>
+      <div class="intro-text-wrapper scene-2-text">
+        <p class="intro-text-line">Every uprising was answered with bullets.</p>
+        <p class="intro-text-line">Every silence was paid for with blood.</p>
+      </div>
+    </div>
+
+    <!-- Scene 3: 2026 -->
+    <div class="intro-scene scene-3" data-scene="3">
+      <div class="crack-effect"></div>
+      <div class="intro-text-wrapper">
+        <p class="intro-text-line large">In 2026, Iran rose again.</p>
+        <p class="intro-text-line">Not for reform.</p>
+        <p class="intro-text-line">Not for compromise.</p>
+        <p class="intro-text-line accent">But for freedom.</p>
+      </div>
+    </div>
+
+    <!-- Scene 4: The Meaning of the Tulip -->
+    <div class="intro-scene scene-4" data-scene="4">
+      <div class="intro-text-wrapper tulip-text">
+        <p class="intro-text-line">In Persian culture, the red tulip blooms from blood.</p>
+        <p class="intro-text-line">It is the symbol of martyrdom.</p>
+        <p class="intro-text-line">Of those who die so a nation may live.</p>
+        <p class="intro-text-line accent">Each tulip marks a life taken.</p>
+        <p class="intro-text-line accent">Each one refuses to be forgotten.</p>
+      </div>
+    </div>
+
+    <!-- Scene 5: Transition to Map -->
+    <div class="intro-scene scene-5" data-scene="5">
+      <div class="intro-text-wrapper final-text">
+        <p class="intro-text-line large">This land remembers every name.</p>
+      </div>
+    </div>
+
+    <!-- Scroll Hint -->
+    <div id="scroll-hint" class="scroll-hint">
+      <span class="scroll-text">Scroll to explore</span>
+      <div class="scroll-bar"></div>
+    </div>
+
+    <!-- Skip Button -->
+    <button id="skip-intro" class="skip-button" data-i18n="intro.skip">Skip</button>
+
   </div>
+
+  <!-- Audio Elements for Dynamic Layers -->
+  <audio id="audio-scene0-mother" preload="auto" src="/audio/intro/scene0_vahid_afkari.mp3"></audio>
+  <audio id="audio-scene0-chant" preload="auto" src="/audio/intro/scene0_protest_chant_distant.mp3"></audio>
+  <audio id="audio-scene0-wind" preload="auto" src="/audio/intro/scene0_wind_breath.mp3"></audio>
+  <audio id="audio-scene1-azadi" preload="auto" src="/audio/intro/scene1_azadi_whisper.mp3"></audio>
+  <audio id="audio-scene1-protest" preload="auto" src="/audio/intro/scene1_old_protest_memory.mp3"></audio>
+  <audio id="audio-scene2-chant" preload="auto" src="/audio/intro/scene2_chant_evolving.mp3"></audio>
+  <audio id="audio-scene2-woman" preload="auto" src="/audio/intro/scene2_woman_shouting.mp3"></audio>
+  <audio id="audio-scene2-father" preload="auto" src="/audio/intro/scene2_father_voice.mp3"></audio>
+  <audio id="audio-scene3-crowd" preload="auto" src="/audio/intro/scene3_crowd_feet_breathing.mp3"></audio>
+  <audio id="audio-scene4-narrator" preload="auto" src="/audio/intro/scene4_calm_narrator.mp3"></audio>
+  <audio id="audio-scene5-bass" preload="auto" src="/audio/intro/scene5_transition_bass.mp3"></audio>
+
+  <!-- Dynamic Audio Layers -->
+  <audio id="audio-memory-layer" loop preload="auto" src="/audio/intro/layers/memory_layer.mp3"></audio>
+  <audio id="audio-resistance-layer" loop preload="auto" src="/audio/intro/layers/resistance_layer.mp3"></audio>
+  <audio id="audio-silence-layer" loop preload="auto" src="/audio/intro/layers/silence_layer.mp3"></audio>
 
   <!-- Names Background Layer - "The Names That Never Stop Passing" -->
   <div id="names-background" class="hidden" aria-hidden="true"></div>
@@ -85,7 +237,7 @@
     <p data-i18n="intro.subtitle">Each tulip, a life taken</p>
     <p class="subtitle" data-i18n="intro.date">Iran, January 2026</p>
   </div>
-  
+
   <!-- Search Feature -->
   <div id="search-container" class="hidden">
     <div class="search-wrapper">

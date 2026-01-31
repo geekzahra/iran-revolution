@@ -19,6 +19,8 @@
   --color-text-subtle: rgba(255, 255, 255, 0.3);
   --color-accent: #8b0000;
   --color-accent-glow: rgba(139, 0, 0, 0.3);
+  --color-ember: #ff4500;
+  --color-portrait-rim: rgba(255, 0, 0, 0.4);
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-persian: 'Vazirmatn', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --transition-slow: 1.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -58,7 +60,8 @@ body {
   height: 100%;
   overflow: hidden;
   background: var(--color-bg);
-  font-family: var(--font-primary);
+  font-family: var(--font-persian);
+  /* Vazirmatn as primary */
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -113,6 +116,17 @@ body {
   margin-bottom: 2rem;
   color: var(--color-text-muted);
 }
+
+.onboarding-lang-en {
+  margin-bottom: 0.5rem !important;
+}
+
+.onboarding-lang-fa {
+  font-family: var(--font-persian);
+  direction: rtl;
+  margin-bottom: 2.5rem !important;
+}
+
 
 .onboarding-buttons {
   display: flex;
@@ -1564,4 +1578,1032 @@ body {
 [dir="rtl"] .stat-number {
   direction: ltr;
   unicode-bidi: isolate;
+}
+
+/* ===========================================
+   CINEMATIC INTRO - "47 Years. One Voice."
+   =========================================== */
+
+#cinematic-intro {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+  z-index: 500;
+  overflow: hidden;
+  --color-accent: #8b0000;
+  --color-accent-glow: rgba(139, 0, 0, 0.5);
+}
+
+#cinematic-intro::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+#cinematic-intro.hidden {
+  display: none;
+}
+
+/* Scene Base Styles */
+.intro-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1.05);
+  /* Subtle scale-in entrance */
+  overflow: hidden;
+  /* Added to prevent child element overflow scrolls */
+}
+
+.intro-scene.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* Scene 0: Absolute Darkness & Testimony Redesign */
+.scene-0 {
+  background: #000 !important;
+  display: grid !important;
+  place-items: center;
+  /* Robust centering */
+  overflow: hidden;
+  /* Prevent scrolling entirely */
+  padding: 1rem;
+  /* Reduced from 4rem 1rem */
+}
+
+.testimony-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  z-index: 10;
+  padding: 1rem 0;
+  /* Reduced from 3rem 0 */
+}
+
+.scene-audio-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.scene-0.impact-active {
+  justify-content: center;
+  /* Re-center when impact is active to center the 99vh block */
+  overflow: hidden;
+  /* Prevent scrolls during final impact */
+}
+
+.scene-0.impact-active .testimony-content {
+  max-width: none;
+  width: 100vw;
+  height: 99vh;
+}
+
+/* Atmospheric Background */
+.testimony-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.atmosphere-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 40%, #000 80%);
+}
+
+.atmosphere-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  animation: grain-animation 1s steps(4) infinite;
+}
+
+@keyframes grain-animation {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(-5px, -5px);
+  }
+
+  50% {
+    transform: translate(5px, 5px);
+  }
+
+  75% {
+    transform: translate(-5px, 5px);
+  }
+}
+
+.atmosphere-flicker {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.01);
+  opacity: 0;
+  animation: flicker-light 8s linear infinite;
+}
+
+@keyframes flicker-light {
+
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  98% {
+    opacity: 0;
+  }
+
+  98.5% {
+    opacity: 0.05;
+  }
+
+  99% {
+    opacity: 0;
+  }
+
+  99.5% {
+    opacity: 0.03;
+  }
+}
+
+/* Particle Canvas */
+.testimony-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Identity Header */
+.testimony-identity {
+  position: relative;
+  margin-bottom: 1rem;
+  /* Reduced from 2rem */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  /* Reduced gap */
+  opacity: 0;
+  z-index: 20;
+  text-align: center;
+}
+
+.testimony-identity.visible {
+  opacity: 1;
+  transition: opacity 3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.identity-name {
+  font-family: var(--font-persian);
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  /* Slightly smaller */
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.name-underline {
+  width: 0%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  margin-top: 0.25rem;
+  transition: width 2s ease 1s;
+}
+
+.testimony-identity.visible .name-underline {
+  width: 120%;
+}
+
+.identity-meta {
+  font-size: clamp(0.8rem, 1.4vw, 1rem);
+  /* Slightly smaller */
+  font-weight: 300;
+  color: var(--color-text-muted);
+  letter-spacing: 0.15em;
+}
+
+.meta-embers {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  filter: blur(2px);
+  background: var(--color-ember);
+  opacity: 0;
+}
+
+.testimony-identity.impact-active .meta-embers {
+  opacity: 0.6;
+  animation: ember-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ember-pulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateX(-50%) scaleX(0.8);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translateX(-50%) scaleX(1.1);
+  }
+}
+
+/* Portrait Styling (Integrated Cinematic Subject) */
+.testimony-portrait {
+  position: relative;
+  width: clamp(150px, 18.75vw, 262px);
+  /* Adjusted size for better balance */
+  height: auto;
+  /* Allow natural aspect ratio */
+  min-height: 187px;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  z-index: 10;
+  opacity: 0;
+  transform: scale(0.98);
+  /* Minimal scale shift */
+  transition: all 3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.testimony-portrait.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.portrait-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle at center, var(--color-portrait-rim) 0%, transparent 80%);
+  opacity: 0.4;
+  filter: blur(25px);
+  /* Softer, wider glow */
+  z-index: -1;
+}
+
+.portrait-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* Don't clip the subject */
+  background: transparent;
+  display: flex;
+  justify-content: center;
+}
+
+.portrait-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portrait-image img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(0.5) contrast(1.1) brightness(1.1);
+  /* Subtle grayscale for better blend */
+  mix-blend-mode: screen;
+  /* Blend black background of image into scene */
+  transition: filter 1s ease;
+}
+
+.portrait-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* Testimony Quote */
+.testimony-quote {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  /* Reduced from 1rem */
+  z-index: 15;
+}
+
+.testimony-line-wrapper {
+  overflow: hidden;
+  width: 100%;
+  text-align: center;
+}
+
+.testimony-line {
+  font-family: var(--font-persian);
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  /* Increased slightly for single line impact */
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+  /* Force exactly one line */
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.testimony-line.visible {
+  color: #f0f0f0;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.testimony-line.dimmed {
+  color: rgba(255, 255, 255, 0.1);
+  filter: blur(2px);
+  transform: scale(0.98);
+}
+
+/* Impact Stack */
+.impact-wrapper {
+  width: 100vw;
+  height: 85vh;
+  /* Reduced from 99vh for better fit */
+  max-height: 800px;
+  /* Cap the max height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 1rem 0;
+}
+
+.vertical-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Switched to center for better grouping */
+  height: 100%;
+  width: 100%;
+  gap: 0.5rem;
+  /* Re-added small gap */
+}
+
+.impact-word {
+  font-size: clamp(2rem, 9vh, 5rem);
+  /* Reduced size */
+  font-weight: 900;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0;
+  transform: scale(1.1) translateY(10px);
+  filter: blur(10px);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(139, 0, 0, 0.5);
+}
+
+.impact-word.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  filter: blur(0);
+}
+
+.impact-word.visible:nth-child(even) {
+  animation: text-pulse 3s ease-in-out infinite;
+}
+
+@keyframes text-pulse {
+
+  0%,
+  100% {
+    text-shadow: 0 0 30px rgba(139, 0, 0, 0.4);
+  }
+
+  50% {
+    text-shadow: 0 0 60px rgba(139, 0, 0, 0.8), 0 0 100px rgba(255, 0, 0, 0.2);
+  }
+}
+
+/* Audio Hint Redesign */
+.audio-wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 20px;
+}
+
+.audio-wave span {
+  width: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.audio-wave span:nth-child(1) {
+  height: 10px;
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.audio-wave span:nth-child(2) {
+  height: 18px;
+  animation: wave 1.2s ease-in-out -0.4s infinite;
+}
+
+.audio-wave span:nth-child(3) {
+  height: 12px;
+  animation: wave 1.2s ease-in-out -0.8s infinite;
+}
+
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: scaleY(0.5);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scaleY(1.2);
+    opacity: 0.7;
+  }
+}
+
+/* Scroll Hint */
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.scroll-hint.visible {
+  opacity: 1;
+}
+
+.scroll-text {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-text-subtle);
+}
+
+.scroll-bar {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--color-text-subtle), transparent);
+  animation: scroll-slide 2s ease-in-out infinite;
+}
+
+@keyframes scroll-slide {
+  0% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+
+  50% {
+    transform: scaleY(0.4);
+    transform-origin: top;
+  }
+
+  100% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+/* Skip Button Refinement */
+.skip-button {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.5rem 1.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  z-index: 600;
+}
+
+.skip-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+[dir="rtl"] .skip-button {
+  right: auto;
+  left: 2rem;
+  font-family: var(--font-persian);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .testimony-portrait {
+    width: clamp(90px, 11.25vw, 135px);
+    height: clamp(90px, 11.25vw, 135px);
+    margin-bottom: 1rem;
+  }
+
+  .testimony-line {
+    font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+  }
+
+  .impact-word {
+    font-size: clamp(2rem, 12vw, 4.5rem);
+  }
+}
+
+.scene-0.impact-active .testimony-portrait,
+.scene-0.impact-active .testimony-identity {
+  display: none !important;
+  /* Remove from flow to give 99vh to text only */
+}
+
+.intro-text-line {
+  font-family: var(--font-persian);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.8;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  letter-spacing: 0.03em;
+}
+
+.intro-text-line.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.intro-text-line.large {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+.intro-text-line.accent {
+  color: var(--color-accent);
+  text-shadow: 0 0 30px var(--color-accent-glow);
+}
+
+/* Heartbeat Pulse - Scene 1 */
+.heartbeat-pulse {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(139, 0, 0, 0.2), transparent 70%);
+  opacity: 0;
+  animation: heartbeat 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes heartbeat {
+
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  15% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  30% {
+    opacity: 0.2;
+    transform: scale(0.98);
+  }
+
+  45% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  60%,
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Scene 2: Years Timeline */
+.years-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.year-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 1s ease;
+}
+
+.year-number {
+  font-family: 'Inter', monospace;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 200;
+  color: rgba(255, 255, 255, 0.1);
+  letter-spacing: 0.2em;
+}
+
+.year-title {
+  font-size: clamp(0.8rem, 2vw, 1.2rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.05);
+  letter-spacing: 0.1em;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.8s ease 0.2s;
+}
+
+.year-item.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.year-item.visible .year-number {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.year-item.visible .year-title {
+  opacity: 1;
+  transform: translateY(0);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.year-item.passed {
+  opacity: 1;
+  transform: scale(0.9);
+}
+
+.year-item.passed .year-number {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.year-item.passed .year-title {
+  color: rgba(255, 255, 255, 0.1);
+}
+
+.year-title.woman-life-freedom {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--color-accent) !important;
+  text-shadow: 0 0 20px var(--color-accent-glow);
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.scene-2-text {
+  margin-top: 2rem;
+}
+
+/* Dust Particles (Names background for Scene 2) */
+.dust-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.dust-particle {
+  position: absolute;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+  animation: floatDust 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes floatDust {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.1;
+  }
+
+  90% {
+    opacity: 0.1;
+  }
+
+  100% {
+    transform: translateY(-100vh) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+/* Scene 3: Crack Effect */
+.crack-effect {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.crack-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 20px var(--color-accent),
+    0 0 40px var(--color-accent),
+    0 0 60px var(--color-accent);
+  transition: width 3s ease-out;
+}
+
+.crack-effect.active::before {
+  width: 150%;
+}
+
+.crack-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center,
+      rgba(139, 0, 0, 0.1) 0%,
+      transparent 50%);
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+.crack-effect.active::after {
+  opacity: 1;
+}
+
+/* Scroll Hint - Visible only when active */
+.scroll-hint {
+  position: absolute;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  opacity: 0.6;
+  transition: opacity 1s ease, transform 1s ease;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.scroll-hint.hidden {
+  opacity: 0;
+  transform: translate(-50%, 20px);
+}
+
+.scroll-text {
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 300;
+}
+
+.scroll-bar {
+  width: 1px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  transform: translateY(-100%);
+  animation: scrollAnim 2s cubic-bezier(0.7, 0, 0.3, 1) infinite;
+}
+
+@keyframes scrollAnim {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+[dir="rtl"] .scroll-text {
+  font-family: var(--font-persian);
+  letter-spacing: 0.1em;
+}
+
+.final-text {
+  text-align: center;
+}
+
+/* --- Scene-Specific Themes --- */
+
+/* Scene 0: Absolute Darkness */
+.scene-0 {
+  background: radial-gradient(circle at center, #0d0d0d 0%, #000 100%);
+}
+
+/* Scene 1: Memory Flux */
+.scene-1 {
+  background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+  backdrop-filter: blur(2px);
+}
+
+.scene-1::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.03) 0px, rgba(0, 0, 0, 0.03) 1px, transparent 1px, transparent 2px);
+  pointer-events: none;
+}
+
+/* Scene 2: The Earth (Deep Browns) */
+.scene-2 {
+  background: radial-gradient(circle at center, #2b1d16 0%, #0a0807 100%);
+}
+
+/* Scene 3: The Fracture (High Contrast Crimson) */
+.scene-3 {
+  background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
+}
+
+.scene-3.active {
+  animation: strobePulse 10s infinite;
+}
+
+@keyframes strobePulse {
+
+  0%,
+  100% {
+    background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
+  }
+
+  50% {
+    background: radial-gradient(circle at center, #2a0000 0%, #050000 100%);
+  }
+}
+
+/* Scene 4: Ethereal (Indigo/Violet) */
+.scene-4 {
+  background: radial-gradient(circle at center, #120c1f 0%, #05040a 100%);
+}
+
+.scene-4::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(100, 50, 255, 0.05), transparent 50%);
+  pointer-events: none;
+}
+
+/* Scene 5: Remembrance (Forest Teal) */
+.scene-5 {
+  background: radial-gradient(circle at center, #0a1f1a 0%, #020504 100%);
+}
+
+/* Skip Button */
+.skip-button {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.5rem 1.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all var(--transition-fast);
+  z-index: 600;
+}
+
+.skip-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[dir="rtl"] .skip-button {
+  right: auto;
+  left: 2rem;
+  font-family: var(--font-persian);
+}
+
+/* RTL Support for Cinematic Intro */
+[dir="rtl"] .intro-text-line {
+  font-family: var(--font-persian);
+  direction: rtl;
+}
+
+[dir="rtl"] .intro-text-wrapper {
+  text-align: center;
+}
+
+[dir="rtl"] .year-item {
+  direction: ltr;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .intro-text-line {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    line-height: 1.6;
+  }
+
+  .intro-text-line.large {
+    font-size: clamp(1.2rem, 5vw, 2rem);
+  }
+
+  .year-item {
+    font-size: clamp(1.5rem, 8vw, 3rem);
+  }
+
+  .floating-tulip .tulip-svg {
+    width: 80px;
+    height: 120px;
+  }
+
+  .tulip-glow {
+    width: 100px;
+    height: 100px;
+  }
+
+  .skip-button {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.4rem 1rem;
+    font-size: 0.65rem;
+  }
+
+  [dir="rtl"] .skip-button {
+    right: auto;
+    left: 1rem;
+  }
 }

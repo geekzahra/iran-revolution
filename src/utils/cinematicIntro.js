@@ -92,11 +92,32 @@ class TestimonyParticles {
 // Audio layer volumes for each scene
 const AUDIO_LAYERS = {
     0: { memory: 0.1, resistance: 0.05, silence: 0.3 },
-    1: { memory: 0.2, resistance: 0.1, silence: 0.2 },
-    2: { memory: 0.3, resistance: 0.25, silence: 0.1 },
-    3: { memory: 0.15, resistance: 0.5, silence: 0.05 },
-    4: { memory: 0.4, resistance: 0.05, silence: 0.3 },
-    5: { memory: 0.2, resistance: 0.3, silence: 0.1 }
+    1: { memory: 0.4, resistance: 0.3, silence: 0.1 },  // Timeline scene
+    2: { memory: 0.4, resistance: 0.05, silence: 0.3 }, // Tulip scene
+    3: { memory: 0.2, resistance: 0.3, silence: 0.1 }  // Transition scene
+};
+
+const PROTESTS_DATA = {
+    fa: [
+        { year: "۱۳۵۷", title: "اعتراضات ۱۷ اسفند", reason: "اجباری شدن حجاب", video: "", audio: "" },
+        { year: "۱۳۷۸", title: "۱۸ تیر (کوی دانشگاه)", reason: "توقیف روزنامه سلام و محدودیت مطبوعات", video: "", audio: "" },
+        { year: "۱۳۸۸", title: "جنبش سبز", reason: "اعتراض به نتایج انتخابات ریاست‌جمهوری", video: "", audio: "" },
+        { year: "۱۳۹۶", title: "اعتراضات دی‌ماه", reason: "گرانی و مسائل معیشتی (شروع از مشهد)", video: "", audio: "" },
+        { year: "۱۳۹۸", title: "آبان خونین", reason: "افزایش ناگهانی ۳ برابری قیمت بنزین", video: "", audio: "" },
+        { year: "۱۳۹۸", title: "پرواز ۷۵۲", reason: "پنهان‌کاری در شلیک به هواپیمای اوکراینی", video: "", audio: "" },
+        { year: "۱۴۰۱", title: "جنبش زن، زندگی، آزادی", reason: "جان باختن مهسا امینی در بازداشت گشت ارشاد", video: "", audio: "" },
+        { year: "۱۴۰۴", title: "آخرین نبرد", reason: "مطالبات معیشتی و آزادی‌های مدنی", video: "", audio: "" }
+    ],
+    en: [
+        { year: "1979", title: "March 8 Protests", reason: "Mandatory hijab implementation", video: "", audio: "" },
+        { year: "1999", title: "Student Uprising (18 Tir)", reason: "Closure of Salam newspaper & press restrictions", video: "", audio: "" },
+        { year: "2009", title: "Green Movement", reason: "Protest against presidential election results", video: "", audio: "" },
+        { year: "2018", title: "January Protests", reason: "Economic hardship (started in Mashhad)", video: "", audio: "" },
+        { year: "2019", title: "Bloody November", reason: "Sudden 3x increase in fuel prices", video: "", audio: "" },
+        { year: "2020", title: "Flight 752", reason: "Cover-up of the Ukrainian plane shootdown", video: "", audio: "" },
+        { year: "2022", title: "Woman, Life, Freedom", reason: "Death of Mahsa Amini in morality police custody", video: "", audio: "" },
+        { year: "2026", title: "The Final Battle", reason: "Livelihood demands and civil liberties", video: "", audio: "" }
+    ]
 };
 
 // Vahid Afkari Testimony Sync (Timestamps in seconds)
@@ -209,10 +230,13 @@ export class CinematicIntro {
             scene4: {
                 narrator: document.getElementById('audio-scene4-narrator')
             },
-            scene5: {
+            scene3: {
                 bass: document.getElementById('audio-scene5-bass')
             }
         };
+
+        this.currentProtestIndex = 0;
+        this.protestTypingInterval = null;
 
         this.onComplete = null;
     }
@@ -276,44 +300,18 @@ export class CinematicIntro {
             }
         });
 
-        // Scene 1
-        const scene1Lines = this.scenes[1].querySelectorAll('.intro-text-line');
-        INTRO_TEXT_FA.scene1.forEach((text, i) => {
-            if (scene1Lines[i]) scene1Lines[i].textContent = text;
-        });
+        // Scene 1 - Timeline (Handled dynamically in initTimeline/updateProtest)
 
-        // Scene 2 - Years
-        const yearItems = this.scenes[2].querySelectorAll('.year-item');
-        INTRO_TEXT_FA.scene2.years.forEach((yearData, i) => {
-            if (yearItems[i]) {
-                const numEl = yearItems[i].querySelector('.year-number');
-                const titleEl = yearItems[i].querySelector('.year-title');
-                if (numEl) numEl.textContent = yearData.number;
-                if (titleEl) titleEl.textContent = yearData.title;
-            }
-        });
-
-        const scene2TextLines = this.scenes[2].querySelectorAll('.scene-2-text .intro-text-line');
-        INTRO_TEXT_FA.scene2.text.forEach((text, i) => {
-            if (scene2TextLines[i]) scene2TextLines[i].textContent = text;
-        });
-
-        // Scene 3
-        const scene3Lines = this.scenes[3].querySelectorAll('.intro-text-line');
-        INTRO_TEXT_FA.scene3.forEach((text, i) => {
-            if (scene3Lines[i]) scene3Lines[i].textContent = text;
-        });
-
-        // Scene 4
-        const scene4Lines = this.scenes[4].querySelectorAll('.intro-text-line');
+        // Scene 2 - Tulip
+        const scene2Lines = this.scenes[2].querySelectorAll('.intro-text-line');
         INTRO_TEXT_FA.scene4.forEach((text, i) => {
-            if (scene4Lines[i]) scene4Lines[i].textContent = text;
+            if (scene2Lines[i]) scene2Lines[i].textContent = text;
         });
 
-        // Scene 5
-        const scene5Lines = this.scenes[5].querySelectorAll('.intro-text-line');
+        // Scene 3 - Land Remembers
+        const scene3Lines = this.scenes[3].querySelectorAll('.intro-text-line');
         INTRO_TEXT_FA.scene5.forEach((text, i) => {
-            if (scene5Lines[i]) scene5Lines[i].textContent = text;
+            if (scene3Lines[i]) scene3Lines[i].textContent = text;
         });
     }
 
@@ -407,6 +405,10 @@ export class CinematicIntro {
      */
     progress() {
         if (this.isTransitioning) return;
+
+        // Don't progress automatically from Timeline scene
+        if (this.currentScene === 1) return;
+
         this.stopSceneAudio(this.currentScene);
         this.playScene(this.currentScene + 1);
     }
@@ -494,9 +496,11 @@ export class CinematicIntro {
 
         this.updateAudioLayers(index);
 
-        // Special handling for Scene 0 (Testimony)
+        // Special handling for Scenes
         if (index === 0) {
             this.animateScene0(currentScene);
+        } else if (index === 1) {
+            this.initTimeline();
         } else {
             this.playSceneAudio(index);
             this.animateScene(index);
@@ -635,11 +639,107 @@ export class CinematicIntro {
     animateScene(index) {
         const scene = this.scenes[index];
         switch (index) {
-            case 1: this.animateScene1(scene); break;
-            case 2: this.animateScene2(scene); break;
-            case 3: this.animateScene3(scene); break;
-            case 4: this.animateScene4(scene); break;
-            case 5: this.animateScene5(scene); break;
+            case 2: this.animateScene4(scene); break; // Renumbered Tulip
+            case 3: this.animateScene5(scene); break; // Renumbered Transition
+        }
+    }
+
+    /**
+     * Initialize Timeline Scene logic
+     */
+    initTimeline() {
+        this.currentProtestIndex = 0;
+        this.setupTimelineEvents();
+        this.updateProtest(true);
+    }
+
+    setupTimelineEvents() {
+        const prevBtn = document.getElementById('prev-protest');
+        const nextBtn = document.getElementById('next-protest');
+
+        if (prevBtn && !prevBtn._hasHandler) {
+            prevBtn.onclick = () => this.navigateProtest(-1);
+            prevBtn._hasHandler = true;
+        }
+        if (nextBtn && !nextBtn._hasHandler) {
+            nextBtn.onclick = () => this.navigateProtest(1);
+            nextBtn._hasHandler = true;
+        }
+    }
+
+    navigateProtest(direction) {
+        const lang = getCurrentLanguage();
+        const data = PROTESTS_DATA[lang];
+
+        const nextIndex = this.currentProtestIndex + direction;
+
+        if (nextIndex < 0) return;
+        if (nextIndex >= data.length) {
+            // End of timeline, move to next scene
+            this.stopSceneAudio(1);
+            this.playScene(2);
+            return;
+        }
+
+        this.currentProtestIndex = nextIndex;
+        this.updateProtest();
+    }
+
+    updateProtest(isFirst = false) {
+        const lang = getCurrentLanguage();
+        const protest = PROTESTS_DATA[lang][this.currentProtestIndex];
+
+        const yearEl = document.getElementById('timeline-year');
+        const titleEl = document.getElementById('protest-title');
+        const reasonEl = document.getElementById('protest-reason');
+        const video = document.getElementById('timeline-bg-video');
+        const audio = document.getElementById('timeline-protest-audio');
+
+        // Reset elements
+        if (this.protestTypingInterval) clearInterval(this.protestTypingInterval);
+        yearEl.textContent = "";
+
+        // Visual transitions
+        gsap.to([titleEl, reasonEl], {
+            opacity: 0, y: 10, duration: 0.3, onComplete: () => {
+                titleEl.textContent = protest.title;
+                reasonEl.textContent = protest.reason;
+
+                gsap.to([titleEl, reasonEl], { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 });
+            }
+        });
+
+        // Typing effect for year
+        let idx = 0;
+        this.protestTypingInterval = setInterval(() => {
+            if (idx < protest.year.length) {
+                yearEl.textContent += protest.year[idx];
+                idx++;
+            } else {
+                clearInterval(this.protestTypingInterval);
+            }
+        }, 150);
+
+        // Audio & Video
+        if (video) {
+            if (protest.video) {
+                video.src = protest.video;
+                video.classList.remove('hidden');
+                video.play();
+            } else {
+                video.classList.add('hidden');
+                video.pause();
+            }
+        }
+
+        if (audio) {
+            if (protest.audio) {
+                audio.src = protest.audio;
+                audio.volume = 0.5;
+                audio.play();
+            } else {
+                audio.pause();
+            }
         }
     }
 

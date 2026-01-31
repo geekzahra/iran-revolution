@@ -2295,83 +2295,152 @@ body {
   }
 }
 
-/* Scene 2: Years Timeline */
-.years-timeline {
+/* Scene 1: Protests Timeline */
+.scene-timeline {
+  background: #000;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  padding: 2rem;
+  z-index: 10;
 }
 
-.year-item {
+.timeline-video-container {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.timeline-video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.4;
+}
+
+.timeline-top-info {
+  position: absolute;
+  top: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: all 1s ease;
+  text-align: center;
+  width: 90%;
+  max-width: 1000px;
 }
 
-.year-number {
+.protest-title {
+  font-family: var(--font-persian);
+  font-size: clamp(1.4rem, 3vw, 2.5rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.protest-separator {
+  width: 50px;
+  height: 2px;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent-glow);
+}
+
+.protest-reason {
+  font-family: var(--font-persian);
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-weight: 300;
+  color: var(--color-text-muted);
+  margin: 0;
+  max-width: 800px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Center Content */
+.timeline-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  z-index: 20;
+}
+
+.timeline-year {
   font-family: 'Inter', monospace;
-  font-size: clamp(2rem, 6vw, 4rem);
-  font-weight: 200;
-  color: rgba(255, 255, 255, 0.1);
-  letter-spacing: 0.2em;
+  font-size: clamp(4rem, 15vw, 10rem);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  min-height: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.year-title {
-  font-size: clamp(0.8rem, 2vw, 1.2rem);
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.05);
-  letter-spacing: 0.1em;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.8s ease 0.2s;
+[dir="rtl"] .timeline-year {
+  font-family: var(--font-persian);
+  font-weight: 700;
 }
 
-.year-item.visible {
-  opacity: 1;
-  transform: scale(1);
+.timeline-controls {
+  display: flex;
+  gap: 3rem;
+  margin-top: 1rem;
 }
 
-.year-item.visible .year-number {
-  color: rgba(255, 255, 255, 0.8);
+.timeline-nav-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(5px);
 }
 
-.year-item.visible .year-title {
-  opacity: 1;
-  transform: translateY(0);
-  color: rgba(255, 255, 255, 0.4);
+.timeline-nav-btn:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px var(--color-accent-glow);
 }
 
-.year-item.passed {
-  opacity: 1;
-  transform: scale(0.9);
+.timeline-nav-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
-.year-item.passed .year-number {
-  color: rgba(255, 255, 255, 0.2);
+/* Renumbered Scenes */
+.scene-4 {
+  z-index: 5;
 }
 
-.year-item.passed .year-title {
-  color: rgba(255, 255, 255, 0.1);
+.scene-5 {
+  z-index: 4;
 }
 
-.year-title.woman-life-freedom {
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
-  font-weight: 300;
-  letter-spacing: 0.15em;
-  color: var(--color-accent) !important;
-  text-shadow: 0 0 20px var(--color-accent-glow);
-  opacity: 1 !important;
-  transform: none !important;
-}
+/* Responsive */
+@media (max-width: 768px) {
+  .timeline-top-info {
+    top: 5vh;
+  }
 
-.scene-2-text {
-  margin-top: 2rem;
+  .timeline-controls {
+    gap: 2rem;
+  }
+
+  .timeline-nav-btn {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 /* Dust Particles (Names background for Scene 2) */

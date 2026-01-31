@@ -129,57 +129,37 @@
       </div>
     </div>
 
-    <!-- Scene 1: The Beginning -->
-    <div class="intro-scene scene-1" data-scene="1">
-      <div class="intro-text-wrapper">
-        <p class="intro-text-line" data-line="1">This did not begin in 2026.</p>
-        <p class="intro-text-line" data-line="2">It began 47 years ago.</p>
-        <p class="intro-text-line" data-line="3">With stolen freedom.</p>
-        <p class="intro-text-line" data-line="4">With silenced voices.</p>
+    <!-- Scene 1: Protests Timeline -->
+    <div class="intro-scene scene-timeline" data-scene="1">
+      <div id="timeline-video-container" class="timeline-video-container">
+        <video id="timeline-bg-video" autoplay muted loop playsinline class="hidden"></video>
       </div>
-      <div class="heartbeat-pulse"></div>
-    </div>
 
-    <!-- Scene 2: The Roots (Years Timeline) -->
-    <div class="intro-scene scene-2" data-scene="2">
-      <div class="dust-particles" id="dust-particles"></div>
-      <div class="years-timeline">
-        <div class="year-item" data-year="1999">
-          <span class="year-number">1999</span>
-          <span class="year-title">Student Uprising</span>
-        </div>
-        <div class="year-item" data-year="2009">
-          <span class="year-number">2009</span>
-          <span class="year-title">Green Movement</span>
-        </div>
-        <div class="year-item" data-year="2019">
-          <span class="year-number">2019</span>
-          <span class="year-title">Bloody November</span>
-        </div>
-        <div class="year-item" data-year="2022">
-          <span class="year-number">2022</span>
-          <span class="year-title woman-life-freedom">Woman. Life. Freedom.</span>
-        </div>
+      <div class="timeline-top-info">
+        <h2 id="protest-title" class="protest-title"></h2>
+        <span class="protest-separator"></span>
+        <p id="protest-reason" class="protest-reason"></p>
       </div>
-      <div class="intro-text-wrapper scene-2-text">
-        <p class="intro-text-line">Every uprising was answered with bullets.</p>
-        <p class="intro-text-line">Every silence was paid for with blood.</p>
+
+      <div class="timeline-main">
+        <div id="timeline-year" class="timeline-year"></div>
+        <div class="timeline-controls">
+          <button id="prev-protest" class="timeline-nav-btn" aria-label="Previous">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <button id="next-protest" class="timeline-nav-btn" aria-label="Next">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Scene 3: 2026 -->
-    <div class="intro-scene scene-3" data-scene="3">
-      <div class="crack-effect"></div>
-      <div class="intro-text-wrapper">
-        <p class="intro-text-line large">In 2026, Iran rose again.</p>
-        <p class="intro-text-line">Not for reform.</p>
-        <p class="intro-text-line">Not for compromise.</p>
-        <p class="intro-text-line accent">But for freedom.</p>
-      </div>
-    </div>
-
-    <!-- Scene 4: The Meaning of the Tulip -->
-    <div class="intro-scene scene-4" data-scene="4">
+    <!-- Scene 2: The Meaning of the Tulip -->
+    <div class="intro-scene scene-4" data-scene="2">
       <div class="intro-text-wrapper tulip-text">
         <p class="intro-text-line">In Persian culture, the red tulip blooms from blood.</p>
         <p class="intro-text-line">It is the symbol of martyrdom.</p>
@@ -189,8 +169,8 @@
       </div>
     </div>
 
-    <!-- Scene 5: Transition to Map -->
-    <div class="intro-scene scene-5" data-scene="5">
+    <!-- Scene 3: Transition to Map -->
+    <div class="intro-scene scene-5" data-scene="3">
       <div class="intro-text-wrapper final-text">
         <p class="intro-text-line large">This land remembers every name.</p>
       </div>
@@ -219,6 +199,7 @@
   <audio id="audio-scene3-crowd" preload="auto" src="/audio/intro/scene3_crowd_feet_breathing.mp3"></audio>
   <audio id="audio-scene4-narrator" preload="auto" src="/audio/intro/scene4_calm_narrator.mp3"></audio>
   <audio id="audio-scene5-bass" preload="auto" src="/audio/intro/scene5_transition_bass.mp3"></audio>
+  <audio id="timeline-protest-audio" preload="auto"></audio>
 
   <!-- Dynamic Audio Layers -->
   <audio id="audio-memory-layer" loop preload="auto" src="/audio/intro/layers/memory_layer.mp3"></audio>
